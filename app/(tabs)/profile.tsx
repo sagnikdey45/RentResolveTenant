@@ -35,7 +35,7 @@ export default function ProfileScreen() {
       style={{ backgroundColor: colors.background }}
       className="flex-1 px-5"
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}
     >
       <View className="mb-5">
         <Text style={{ color: colors.textPrimary }} className="text-2xl font-extrabold">Profile</Text>

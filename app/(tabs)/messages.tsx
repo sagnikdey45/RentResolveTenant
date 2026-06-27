@@ -15,7 +15,7 @@ export default function MessagesScreen() {
       <View className="mb-5">
         <Text style={{ color: colors.textPrimary }} className="text-2xl font-extrabold">Messages</Text>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         {MOCK_CONVERSATIONS.map(conv => (
           <Pressable
             key={conv.id}

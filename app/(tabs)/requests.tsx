@@ -81,7 +81,7 @@ export default function RequestsScreen() {
         })}
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
         {filtered.length === 0 ? (
           <EmptyState title="No requests found" message="Try adjusting your search or filters" />
         ) : (

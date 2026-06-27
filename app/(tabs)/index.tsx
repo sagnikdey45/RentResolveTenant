@@ -31,7 +31,7 @@ export default function DashboardScreen() {
       style={{ backgroundColor: colors.background }}
       className="flex-1 px-5"
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 24 }}
     >
       <View className="flex-row justify-between items-start mb-5">
         <View>
