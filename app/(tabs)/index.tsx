@@ -28,7 +28,7 @@ export default function DashboardScreen() {
     <ScrollView
       className="flex-1 bg-slate-50 px-5"
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingTop: insets.top + 16 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
     >
       <View className="flex-row justify-between items-start mb-5">
         <View>
@@ -119,7 +119,6 @@ export default function DashboardScreen() {
         </View>
       ))}
 
-      <View className="h-8" />
     </ScrollView>
   );
 }

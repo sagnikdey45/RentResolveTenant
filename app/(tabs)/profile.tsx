@@ -31,7 +31,7 @@ export default function ProfileScreen() {
     <ScrollView
       className="flex-1 bg-slate-50 px-5"
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingTop: insets.top + 16 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
     >
       <View className="mb-5">
         <Text className="text-2xl font-extrabold text-slate-900">Profile</Text>

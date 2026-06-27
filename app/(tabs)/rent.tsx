@@ -19,7 +19,7 @@ export default function RentScreen() {
     <ScrollView
       className="flex-1 bg-slate-50 px-5"
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingTop: insets.top + 16 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
     >
       <View className="mb-5">
         <Text className="text-2xl font-extrabold text-slate-900">Rent Overview</Text>
@@ -91,7 +91,6 @@ export default function RentScreen() {
           </View>
         );
       })}
-      <View className="h-8" />
     </ScrollView>
   );
 }

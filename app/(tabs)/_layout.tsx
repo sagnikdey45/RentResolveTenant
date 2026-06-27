@@ -1,143 +1,148 @@
 import { Tabs } from 'expo-router';
-import { Platform, View, Text, StyleSheet } from 'react-native';
+import { Platform, View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LayoutDashboard, ClipboardList, MessageSquare, Wallet, User } from 'lucide-react-native';
 import { Colors } from '@/constants/theme';
 
-const TAB_BAR_BASE_HEIGHT = Platform.OS === 'android' ? 72 : 64;
-const ICON_SIZE = Platform.OS === 'android' ? 26 : 24;
-const LABEL_SIZE = Platform.OS === 'android' ? 12 : 11;
+const TABS = [
+  { name: 'index', label: 'Dashboard', Icon: LayoutDashboard },
+  { name: 'requests', label: 'Requests', Icon: ClipboardList },
+  { name: 'messages', label: 'Messages', Icon: MessageSquare, badge: 2 },
+  { name: 'rent', label: 'Rent', Icon: Wallet },
+  { name: 'profile', label: 'Profile', Icon: User },
+];
 
-function TabIcon({
-  icon: Icon,
-  color,
-  label,
-  focused,
-}: {
-  icon: React.ElementType;
-  color: string;
-  label: string;
-  focused: boolean;
-}) {
+function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.tabItem}>
-      <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
-        <Icon size={ICON_SIZE} color={focused ? Colors.primary : color} strokeWidth={focused ? 2.5 : 1.8} />
+    <View style={[styles.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }]}>
+      <View style={styles.bar}>
+        {state.routes.map((route, index) => {
+          const tab = TABS[index];
+          if (!tab) return null;
+          const focused = state.index === index;
+          const { Icon, label, badge } = tab;
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={() => {
+                const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+              }}
+              android_ripple={null}
+              style={styles.tabBtn}
+            >
+              <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+                <Icon
+                  size={22}
+                  color={focused ? '#FFFFFF' : Colors.textMuted}
+                  strokeWidth={focused ? 2.4 : 1.8}
+                />
+                {badge && !focused && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{badge}</Text>
+                  </View>
+                )}
+              </View>
+              <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
+            </Pressable>
+          );
+        })}
       </View>
-      <Text
-        style={[
-          styles.label,
-          { color: focused ? Colors.primary : Colors.textMuted },
-        ]}
-        numberOfLines={1}
-      >
-        {label}
-      </Text>
     </View>
   );
 }
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = TAB_BAR_BASE_HEIGHT + insets.bottom;
-
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: '#E2E8F0',
-          borderTopWidth: 1,
-          height: tabBarHeight,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : Platform.OS === 'android' ? 10 : 8,
-          paddingTop: 0,
-          paddingHorizontal: 8,
-          elevation: 12,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
-        },
-      }}
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={LayoutDashboard} color={color} label="Dashboard" focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="requests"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={ClipboardList} color={color} label="Requests" focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="messages"
-        options={{
-          tabBarBadge: 2,
-          tabBarBadgeStyle: {
-            backgroundColor: Colors.danger,
-            fontSize: 10,
-            minWidth: 17,
-            height: 17,
-            lineHeight: Platform.OS === 'android' ? 15 : 17,
-            top: Platform.OS === 'android' ? 6 : 4,
-            right: Platform.OS === 'android' ? 14 : 10,
-          },
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={MessageSquare} color={color} label="Messages" focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="rent"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={Wallet} color={color} label="Rent" focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={User} color={color} label="Profile" focused={focused} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="requests" />
+      <Tabs.Screen name="messages" />
+      <Tabs.Screen name="rent" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
-  tabItem: {
+  container: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  bar: {
+    flexDirection: 'row',
+    backgroundColor: '#0F172A',
+    borderRadius: 24,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+  tabBtn: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Platform.OS === 'android' ? 10 : 8,
-    gap: Platform.OS === 'android' ? 5 : 4,
-    minWidth: 56,
+    gap: 4,
+    paddingVertical: Platform.OS === 'android' ? 4 : 2,
   },
-  iconWrap: {
-    width: Platform.OS === 'android' ? 44 : 40,
-    height: Platform.OS === 'android' ? 32 : 28,
-    borderRadius: 999,
+  iconContainer: {
+    width: 44,
+    height: 36,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconWrapActive: {
-    backgroundColor: '#DBEAFE',
+  iconContainerActive: {
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
   label: {
-    fontSize: LABEL_SIZE,
-    fontWeight: '600',
-    letterSpacing: 0.2,
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#64748B',
+    letterSpacing: 0.3,
+  },
+  labelActive: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#EF4444',
+    borderRadius: 999,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#0F172A',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '700',
+    lineHeight: 12,
   },
 });
