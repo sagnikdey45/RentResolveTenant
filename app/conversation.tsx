@@ -3,12 +3,14 @@ import { View, Text, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Pla
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Send, LinkIcon } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 import { MOCK_CONVERSATIONS, type Message } from '@/data/mockData';
 
 export default function ConversationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
   const conv = MOCK_CONVERSATIONS.find(c => c.id === id);
   const scrollRef = useRef<ScrollView>(null);
   const [messages, setMessages] = useState<Message[]>(conv?.messages || []);
@@ -35,12 +37,12 @@ export default function ConversationScreen() {
 
   if (!conv) {
     return (
-      <View className="flex-1 bg-slate-50">
-        <View className="flex-row items-center justify-between px-5 pb-3 bg-white border-b border-slate-100" style={{ paddingTop: insets.top }}>
+      <View className="flex-1" style={{ backgroundColor: colors.background }}>
+        <View className="flex-row items-center justify-between px-5 pb-3 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
           <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={22} color="#0F172A" />
+            <ArrowLeft size={22} color={colors.textPrimary} />
           </Pressable>
-          <Text className="text-[15px] font-bold text-slate-900">Conversation Not Found</Text>
+          <Text className="text-[15px] font-bold" style={{ color: colors.textPrimary }}>Conversation Not Found</Text>
           <View className="w-10" />
         </View>
       </View>
@@ -48,22 +50,22 @@ export default function ConversationScreen() {
   }
 
   return (
-    <KeyboardAvoidingView className="flex-1 bg-slate-50" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View className="flex-row items-center justify-between px-5 pb-3 bg-white border-b border-slate-100" style={{ paddingTop: insets.top }}>
+    <KeyboardAvoidingView className="flex-1" style={{ backgroundColor: colors.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View className="flex-row items-center justify-between px-5 pb-3 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
         <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={22} color="#0F172A" />
+          <ArrowLeft size={22} color={colors.textPrimary} />
         </Pressable>
         <View className="flex-1 items-center">
-          <Text className="text-[15px] font-bold text-slate-900">{conv.participantName}</Text>
-          <Text className="text-[11px] text-slate-400">{conv.participantRole}</Text>
+          <Text className="text-[15px] font-bold" style={{ color: colors.textPrimary }}>{conv.participantName}</Text>
+          <Text className="text-[11px]" style={{ color: colors.textMuted }}>{conv.participantRole}</Text>
         </View>
         <View className="w-10" />
       </View>
 
       {conv.linkedRequestTitle && (
-        <View className="flex-row items-center gap-2 bg-blue-50 px-5 py-2">
-          <LinkIcon size={12} color="#2563EB" />
-          <Text className="text-[11px] text-blue-600 font-medium flex-1" numberOfLines={1}>
+        <View className="flex-row items-center gap-2 px-5 py-2" style={{ backgroundColor: colors.primaryLight }}>
+          <LinkIcon size={12} color={colors.primary} />
+          <Text className="text-[11px] font-medium flex-1" numberOfLines={1} style={{ color: colors.primary }}>
             {conv.linkedRequestId}: {conv.linkedRequestTitle}
           </Text>
         </View>
@@ -74,12 +76,16 @@ export default function ConversationScreen() {
           const isMe = msg.senderId === 'tenant_001';
           return (
             <View key={msg.id} className={`mb-3 ${isMe ? 'items-end' : 'items-start'}`}>
-              <View className={`max-w-[80%] rounded-xl p-3 ${
-                isMe ? 'bg-blue-600 rounded-br-sm' : 'bg-white rounded-bl-sm border border-slate-200'
-              }`}>
-                {!isMe && <Text className="text-[11px] font-semibold text-blue-600 mb-1">{msg.senderName}</Text>}
-                <Text className={`text-[13px] leading-5 ${isMe ? 'text-white' : 'text-slate-900'}`}>{msg.text}</Text>
-                <Text className={`text-[10px] mt-1 self-end ${isMe ? 'text-white/70' : 'text-slate-400'}`}>
+              <View className="max-w-[80%] rounded-xl p-3" style={{
+                backgroundColor: isMe ? colors.primary : colors.surface,
+                borderWidth: isMe ? 0 : 1,
+                borderColor: isMe ? 'transparent' : colors.border,
+                borderBottomLeftRadius: isMe ? 16 : 4,
+                borderBottomRightRadius: isMe ? 4 : 16,
+              }}>
+                {!isMe && <Text className="text-[11px] font-semibold mb-1" style={{ color: colors.primary }}>{msg.senderName}</Text>}
+                <Text className="text-[13px] leading-5" style={{ color: isMe ? '#FFFFFF' : colors.textPrimary }}>{msg.text}</Text>
+                <Text className="text-[10px] mt-1 self-end" style={{ color: isMe ? 'rgba(255,255,255,0.7)' : colors.textMuted }}>
                   {msg.timestamp.split(' ')[1]}
                 </Text>
               </View>
@@ -88,17 +94,19 @@ export default function ConversationScreen() {
         })}
       </ScrollView>
 
-      <View className="flex-row items-center gap-2 px-5 py-3 bg-white border-t border-slate-100">
+      <View className="flex-row items-center gap-2 px-5 py-3 border-t" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
         <TextInput
-          className="flex-1 bg-slate-50 rounded-full px-4 py-3 text-[13px] text-slate-900 border border-slate-200"
+          className="flex-1 rounded-full px-4 py-3 text-[13px] border"
+          style={{ backgroundColor: colors.inputBg, color: colors.textPrimary, borderColor: colors.inputBorder }}
           placeholder="Type a message..."
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={colors.textMuted}
           value={text}
           onChangeText={setText}
           onSubmitEditing={handleSend}
         />
         <Pressable
-          className={`w-10 h-10 rounded-full bg-blue-600 items-center justify-center ${!text.trim() ? 'opacity-40' : ''}`}
+          className={`w-10 h-10 rounded-full items-center justify-center ${!text.trim() ? 'opacity-40' : ''}`}
+          style={{ backgroundColor: colors.primary }}
           onPress={handleSend}
           disabled={!text.trim()}
         >

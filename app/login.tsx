@@ -3,6 +3,7 @@ import { View, Text, TextInput, KeyboardAvoidingView, Platform, ScrollView, Pres
 import { useRouter } from 'expo-router';
 import { Shield, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { PrimaryButton } from '@/components/PrimaryButton';
 
 export default function LoginScreen() {
@@ -12,6 +13,7 @@ export default function LoginScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -38,7 +40,8 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-slate-50"
+      className="flex-1"
+      style={{ backgroundColor: colors.background }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -48,33 +51,34 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View className="items-center mb-8">
-          <View className="w-16 h-16 rounded-2xl bg-blue-600 items-center justify-center mb-4 shadow-lg shadow-blue-600/25">
+          <View className="w-16 h-16 rounded-2xl items-center justify-center mb-4 shadow-lg shadow-blue-600/25" style={{ backgroundColor: colors.primary }}>
             <Shield size={32} color="#FFFFFF" />
           </View>
-          <Text className="text-2xl font-extrabold text-slate-900">Rent Resolve</Text>
-          <Text className="text-[15px] text-slate-400 mt-1">Tenant Portal</Text>
+          <Text className="text-2xl font-extrabold" style={{ color: colors.textPrimary }}>Rent Resolve</Text>
+          <Text className="text-[15px] mt-1" style={{ color: colors.textMuted }}>Tenant Portal</Text>
         </View>
 
-        <View className="bg-white rounded-2xl p-6 shadow-sm">
-          <Text className="text-xl font-bold text-slate-900">Welcome back</Text>
-          <Text className="text-[13px] text-slate-400 mt-1 mb-5">Sign in to your account</Text>
+        <View className="rounded-2xl p-6 shadow-sm" style={{ backgroundColor: colors.surface }}>
+          <Text className="text-xl font-bold" style={{ color: colors.textPrimary }}>Welcome back</Text>
+          <Text className="text-[13px] mt-1 mb-5" style={{ color: colors.textMuted }}>Sign in to your account</Text>
 
           {error ? (
-            <View className="bg-red-50 rounded-lg p-3 mb-4">
-              <Text className="text-[13px] text-red-600 font-medium">{error}</Text>
+            <View className="rounded-lg p-3 mb-4" style={{ backgroundColor: colors.dangerLight }}>
+              <Text className="text-[13px] font-medium" style={{ color: colors.danger }}>{error}</Text>
             </View>
           ) : null}
 
           <View className="mb-4">
-            <Text className="text-[13px] font-semibold text-slate-600 mb-2">Email</Text>
-            <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 gap-2">
-              <Mail size={18} color="#94A3B8" />
+            <Text className="text-[13px] font-semibold mb-2" style={{ color: colors.textSecondary }}>Email</Text>
+            <View className="flex-row items-center border rounded-lg px-4 py-3 gap-2" style={{ backgroundColor: colors.inputBg, borderColor: colors.inputBorder }}>
+              <Mail size={18} color={colors.textMuted} />
               <TextInput
-                className="flex-1 text-[15px] text-slate-900"
+                className="flex-1 text-[15px]"
+                style={{ color: colors.textPrimary }}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Enter your email"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textMuted}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -83,20 +87,21 @@ export default function LoginScreen() {
           </View>
 
           <View className="mb-4">
-            <Text className="text-[13px] font-semibold text-slate-600 mb-2">Password</Text>
-            <View className="flex-row items-center bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 gap-2">
-              <Lock size={18} color="#94A3B8" />
+            <Text className="text-[13px] font-semibold mb-2" style={{ color: colors.textSecondary }}>Password</Text>
+            <View className="flex-row items-center border rounded-lg px-4 py-3 gap-2" style={{ backgroundColor: colors.inputBg, borderColor: colors.inputBorder }}>
+              <Lock size={18} color={colors.textMuted} />
               <TextInput
-                className="flex-1 text-[15px] text-slate-900"
+                className="flex-1 text-[15px]"
+                style={{ color: colors.textPrimary }}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Enter your password"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textMuted}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
-                {showPassword ? <EyeOff size={18} color="#94A3B8" /> : <Eye size={18} color="#94A3B8" />}
+                {showPassword ? <EyeOff size={18} color={colors.textMuted} /> : <Eye size={18} color={colors.textMuted} />}
               </Pressable>
             </View>
           </View>
@@ -104,11 +109,11 @@ export default function LoginScreen() {
           <PrimaryButton title="Sign In" onPress={handleLogin} loading={loading} />
 
           <Pressable onPress={fillDemo} className="items-center mt-4">
-            <Text className="text-[13px] text-blue-600 font-medium">Use demo credentials</Text>
+            <Text className="text-[13px] font-medium" style={{ color: colors.primary }}>Use demo credentials</Text>
           </Pressable>
         </View>
 
-        <Text className="text-[11px] text-slate-400 text-center mt-5">
+        <Text className="text-[11px] text-center mt-5" style={{ color: colors.textMuted }}>
           Demo: tenant@example.com / password123
         </Text>
       </ScrollView>

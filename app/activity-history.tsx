@@ -5,6 +5,7 @@ import {
   ArrowLeft, Plus, RefreshCw, MessageSquare, UserCheck, Calendar,
   Wallet, CheckCircle, RotateCcw, AlertTriangle, FileText, Clock,
 } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 import { MOCK_ACTIVITY } from '@/data/mockData';
 
 const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
@@ -24,33 +25,47 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
 export default function ActivityHistoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
-    <View className="flex-1 bg-slate-50">
-      <View className="flex-row items-center justify-between px-5 pb-4 bg-white border-b border-slate-100" style={{ paddingTop: insets.top }}>
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center"><ArrowLeft size={22} color="#0F172A" /></Pressable>
-        <Text className="text-[17px] font-bold text-slate-900">Activity History</Text>
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
+      <View
+        className="flex-row items-center justify-between px-5 pb-4 border-b"
+        style={{
+          paddingTop: insets.top,
+          backgroundColor: colors.headerBg,
+          borderBottomColor: colors.headerBorder,
+        }}
+      >
+        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
+          <ArrowLeft size={22} color={colors.textPrimary} />
+        </Pressable>
+        <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>Activity History</Text>
         <View className="w-10" />
       </View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
         {MOCK_ACTIVITY.map((item, i) => {
-          const config = TYPE_CONFIG[item.type] || { icon: Clock, color: '#94A3B8' };
+          const config = TYPE_CONFIG[item.type] || { icon: Clock, color: colors.textMuted };
           const Icon = config.icon;
           return (
             <View key={item.id} className="flex-row">
               <View className="w-10 items-center">
-                <View className="w-9 h-9 rounded-full items-center justify-center" style={{ backgroundColor: config.color + '18' }}>
+                <View
+                  className="w-9 h-9 rounded-full items-center justify-center"
+                  style={{ backgroundColor: config.color + '18' }}
+                >
                   <Icon size={16} color={config.color} />
                 </View>
-                {i < MOCK_ACTIVITY.length - 1 && <View className="w-0.5 flex-1 bg-slate-200 my-0.5" />}
+                {i < MOCK_ACTIVITY.length - 1 && <View className="w-0.5 flex-1 my-0.5" style={{ backgroundColor: colors.border }} />}
               </View>
               <Pressable
-                className="flex-1 bg-white rounded-lg p-4 ml-3 mb-3 shadow-sm"
+                className="flex-1 rounded-lg p-4 ml-3 mb-3 shadow-sm"
+                style={{ backgroundColor: colors.surface }}
                 onPress={() => item.linkedRequestId && router.push({ pathname: '/request-detail', params: { id: item.linkedRequestId } })}
               >
-                <Text className="text-[13px] font-semibold text-slate-900">{item.title}</Text>
-                <Text className="text-[11px] text-slate-600 mt-1 leading-[18px]">{item.description}</Text>
-                <Text className="text-[11px] text-slate-400 mt-2">{item.timestamp}</Text>
+                <Text className="text-[13px] font-semibold" style={{ color: colors.textPrimary }}>{item.title}</Text>
+                <Text className="text-[11px] mt-1 leading-[18px]" style={{ color: colors.textSecondary }}>{item.description}</Text>
+                <Text className="text-[11px] mt-2" style={{ color: colors.textMuted }}>{item.timestamp}</Text>
               </Pressable>
             </View>
           );

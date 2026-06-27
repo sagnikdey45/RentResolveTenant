@@ -6,12 +6,14 @@ import {
   Clock, CheckCircle, AlertCircle, BarChart3, Megaphone,
 } from 'lucide-react-native';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { MOCK_REQUESTS, MOCK_ANNOUNCEMENTS, MOCK_ACTIVITY, MOCK_PROPERTY, MOCK_RENT_PAYMENTS } from '@/data/mockData';
 import { StatCard } from '@/components/StatCard';
 import { SectionHeader } from '@/components/SectionHeader';
 
 export default function DashboardScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -26,44 +28,47 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-slate-50 px-5"
+      style={{ backgroundColor: colors.background }}
+      className="flex-1 px-5"
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: 120 }}
     >
       <View className="flex-row justify-between items-start mb-5">
         <View>
-          <Text className="text-[15px] text-slate-400">Good morning,</Text>
-          <Text className="text-2xl font-extrabold text-slate-900 mt-0.5">{user?.name || 'Tenant'}</Text>
-          <Text className="text-[13px] text-blue-600 font-medium mt-1">
+          <Text style={{ color: colors.textMuted }} className="text-[15px]">Good morning,</Text>
+          <Text style={{ color: colors.textPrimary }} className="text-2xl font-extrabold mt-0.5">{user?.name || 'Tenant'}</Text>
+          <Text style={{ color: colors.primary }} className="text-[13px] font-medium mt-1">
             {MOCK_PROPERTY.name} - {MOCK_PROPERTY.unit}
           </Text>
         </View>
         <Pressable
-          className="w-11 h-11 rounded-full bg-white items-center justify-center shadow-sm"
+          style={{ backgroundColor: colors.surface }}
+          className="w-11 h-11 rounded-full items-center justify-center"
           onPress={() => router.push('/notifications')}
         >
-          <Bell size={22} color="#0F172A" />
-          <View className="absolute top-2.5 right-3 w-2 h-2 rounded-full bg-red-500 border-[1.5px] border-white" />
+          <Bell size={22} color={colors.textPrimary} />
+          <View style={{ borderColor: colors.surface }} className="absolute top-2.5 right-3 w-2 h-2 rounded-full bg-red-500 border-[1.5px]" />
         </Pressable>
       </View>
 
       {emergencyRequests.length > 0 && (
         <Pressable
-          className="bg-red-50 rounded-xl p-4 flex-row items-center gap-3 mb-4 border border-red-200"
+          style={{ backgroundColor: colors.dangerLight, borderColor: colors.danger + '40' }}
+          className="rounded-xl p-4 flex-row items-center gap-3 mb-4 border"
           onPress={() => router.push({ pathname: '/request-detail', params: { id: emergencyRequests[0].id } })}
         >
-          <AlertTriangle size={20} color="#DC2626" />
+          <AlertTriangle size={20} color={colors.danger} />
           <View className="flex-1">
-            <Text className="text-[13px] font-bold text-red-600">
+            <Text style={{ color: colors.danger }} className="text-[13px] font-bold">
               {emergencyRequests.length} Emergency {emergencyRequests.length === 1 ? 'Issue' : 'Issues'}
             </Text>
-            <Text className="text-[11px] text-red-600 mt-0.5">{emergencyRequests[0].title}</Text>
+            <Text style={{ color: colors.danger }} className="text-[11px] mt-0.5">{emergencyRequests[0].title}</Text>
           </View>
         </Pressable>
       )}
 
       {nextRent && (
-        <View className="bg-blue-600 rounded-xl p-5 flex-row items-center justify-between mb-5">
+        <View style={{ backgroundColor: colors.primary }} className="rounded-xl p-5 flex-row items-center justify-between mb-5">
           <View>
             <Text className="text-[11px] text-white/70 font-medium">Rent Due</Text>
             <Text className="text-2xl font-extrabold text-white mt-1">
@@ -89,45 +94,48 @@ export default function DashboardScreen() {
 
       <SectionHeader title="Quick Actions" />
       <View className="flex-row flex-wrap gap-3">
-        <QuickAction icon={<Plus size={20} color="#2563EB" />} label="Raise Request" onPress={() => router.push('/create-request')} />
-        <QuickAction icon={<ClipboardList size={20} color="#059669" />} label="View Requests" onPress={() => router.push('/(tabs)/requests')} />
-        <QuickAction icon={<Wallet size={20} color="#D97706" />} label="Rent Overview" onPress={() => router.push('/(tabs)/rent')} />
-        <QuickAction icon={<AlertTriangle size={20} color="#DC2626" />} label="Raise Dispute" onPress={() => router.push('/dispute')} />
+        <QuickAction colors={colors} icon={<Plus size={20} color={colors.primary} />} label="Raise Request" onPress={() => router.push('/create-request')} />
+        <QuickAction colors={colors} icon={<ClipboardList size={20} color={colors.accent} />} label="View Requests" onPress={() => router.push('/(tabs)/requests')} />
+        <QuickAction colors={colors} icon={<Wallet size={20} color={colors.warning} />} label="Rent Overview" onPress={() => router.push('/(tabs)/rent')} />
+        <QuickAction colors={colors} icon={<AlertTriangle size={20} color={colors.danger} />} label="Raise Dispute" onPress={() => router.push('/dispute')} />
       </View>
 
       <SectionHeader title="Recent Activity" actionLabel="View All" onAction={() => router.push('/activity-history')} />
       {recentActivity.map(item => (
         <View key={item.id} className="flex-row gap-3 mb-4">
-          <View className="w-2 h-2 rounded-full bg-blue-600 mt-1.5" />
+          <View style={{ backgroundColor: colors.primary }} className="w-2 h-2 rounded-full mt-1.5" />
           <View className="flex-1">
-            <Text className="text-[13px] font-semibold text-slate-900">{item.title}</Text>
-            <Text className="text-[11px] text-slate-600 mt-0.5">{item.description}</Text>
-            <Text className="text-[11px] text-slate-400 mt-1">{item.timestamp}</Text>
+            <Text style={{ color: colors.textPrimary }} className="text-[13px] font-semibold">{item.title}</Text>
+            <Text style={{ color: colors.textSecondary }} className="text-[11px] mt-0.5">{item.description}</Text>
+            <Text style={{ color: colors.textMuted }} className="text-[11px] mt-1">{item.timestamp}</Text>
           </View>
         </View>
       ))}
 
       <SectionHeader title="Announcements" actionLabel="View All" onAction={() => router.push('/announcements')} />
       {latestAnnouncements.map(ann => (
-        <View key={ann.id} className="bg-white rounded-xl p-4 mb-3 shadow-sm">
+        <View key={ann.id} style={{ backgroundColor: colors.surface }} className="rounded-xl p-4 mb-3">
           <View className="flex-row items-center gap-2 mb-2">
-            <Megaphone size={16} color={ann.priority === 'High' ? '#DC2626' : '#D97706'} />
-            <Text className="text-[13px] font-semibold text-slate-900 flex-1">{ann.title}</Text>
+            <Megaphone size={16} color={ann.priority === 'High' ? colors.danger : colors.warning} />
+            <Text style={{ color: colors.textPrimary }} className="text-[13px] font-semibold flex-1">{ann.title}</Text>
           </View>
-          <Text className="text-[11px] text-slate-600 leading-[18px]" numberOfLines={2}>{ann.message}</Text>
-          <Text className="text-[11px] text-slate-400 mt-2">{ann.date} - {ann.postedBy}</Text>
+          <Text style={{ color: colors.textSecondary }} className="text-[11px] leading-[18px]" numberOfLines={2}>{ann.message}</Text>
+          <Text style={{ color: colors.textMuted }} className="text-[11px] mt-2">{ann.date} - {ann.postedBy}</Text>
         </View>
       ))}
-
     </ScrollView>
   );
 }
 
-function QuickAction({ icon, label, onPress }: { icon: React.ReactNode; label: string; onPress: () => void }) {
+function QuickAction({ colors, icon, label, onPress }: { colors: any; icon: React.ReactNode; label: string; onPress: () => void }) {
   return (
-    <Pressable className="bg-white rounded-xl p-4 items-center w-[48%] shadow-sm active:opacity-90" onPress={onPress}>
-      <View className="w-11 h-11 rounded-xl bg-slate-50 items-center justify-center mb-2">{icon}</View>
-      <Text className="text-[13px] font-semibold text-slate-900">{label}</Text>
+    <Pressable
+      style={{ backgroundColor: colors.surface }}
+      className="rounded-xl p-4 items-center w-[48%] active:opacity-90"
+      onPress={onPress}
+    >
+      <View style={{ backgroundColor: colors.surfaceSecondary }} className="w-11 h-11 rounded-xl items-center justify-center mb-2">{icon}</View>
+      <Text style={{ color: colors.textPrimary }} className="text-[13px] font-semibold">{label}</Text>
     </Pressable>
   );
 }

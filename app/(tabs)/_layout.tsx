@@ -3,7 +3,7 @@ import { Platform, View, Text, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LayoutDashboard, ClipboardList, MessageSquare, Wallet, User } from 'lucide-react-native';
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/context/ThemeContext';
 
 const TABS = [
   { name: 'index', label: 'Dashboard', Icon: LayoutDashboard },
@@ -15,10 +15,11 @@ const TABS = [
 
 function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }]}>
-      <View style={styles.bar}>
+      <View style={[styles.bar, { backgroundColor: colors.tabBarBg }]}>
         {state.routes.map((route, index) => {
           const tab = TABS[index];
           if (!tab) return null;
@@ -35,19 +36,21 @@ function CustomTabBar({ state, navigation }: BottomTabBarProps) {
               android_ripple={null}
               style={styles.tabBtn}
             >
-              <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+              <View style={[styles.iconContainer, focused && { backgroundColor: colors.tabBarActiveBg }]}>
                 <Icon
                   size={22}
-                  color={focused ? '#FFFFFF' : Colors.textMuted}
+                  color={focused ? '#FFFFFF' : colors.tabBarLabel}
                   strokeWidth={focused ? 2.4 : 1.8}
                 />
                 {badge && !focused && (
-                  <View style={styles.badge}>
+                  <View style={[styles.badge, { borderColor: colors.tabBarBg }]}>
                     <Text style={styles.badgeText}>{badge}</Text>
                   </View>
                 )}
               </View>
-              <Text style={[styles.label, focused && styles.labelActive]}>{label}</Text>
+              <Text style={[styles.label, { color: focused ? colors.tabBarActiveLabel : colors.tabBarLabel }]}>
+                {label}
+              </Text>
             </Pressable>
           );
         })}
@@ -83,7 +86,6 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
-    backgroundColor: '#0F172A',
     borderRadius: 24,
     paddingVertical: 10,
     paddingHorizontal: 8,
@@ -108,23 +110,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconContainerActive: {
-    backgroundColor: Colors.primary,
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
   label: {
     fontSize: 10,
-    fontWeight: '500',
-    color: '#64748B',
+    fontWeight: '600',
     letterSpacing: 0.3,
-  },
-  labelActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
   badge: {
     position: 'absolute',
@@ -137,7 +126,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#0F172A',
   },
   badgeText: {
     color: '#FFFFFF',

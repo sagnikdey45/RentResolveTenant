@@ -1,4 +1,5 @@
 import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 interface InputFieldProps extends TextInputProps {
   label: string;
@@ -6,18 +7,25 @@ interface InputFieldProps extends TextInputProps {
 }
 
 export function InputField({ label, error, style, ...props }: InputFieldProps) {
+  const { colors } = useTheme();
   return (
     <View className="mb-4">
-      <Text className="text-[13px] font-semibold text-slate-600 mb-2">{label}</Text>
+      <Text style={{ color: colors.textSecondary }} className="text-[13px] font-semibold mb-2">{label}</Text>
       <TextInput
-        className={`bg-white border rounded-lg px-4 py-3 text-[15px] text-slate-900 ${
-          error ? 'border-red-500' : 'border-slate-200'
-        }`}
-        placeholderTextColor="#94A3B8"
-        style={style}
+        className="rounded-lg px-4 py-3 text-[15px]"
+        style={[
+          {
+            backgroundColor: colors.inputBg,
+            borderWidth: 1,
+            borderColor: error ? colors.danger : colors.inputBorder,
+            color: colors.textPrimary,
+          },
+          style,
+        ]}
+        placeholderTextColor={colors.textMuted}
         {...props}
       />
-      {error && <Text className="text-[11px] text-red-500 mt-1">{error}</Text>}
+      {error && <Text style={{ color: colors.danger }} className="text-[11px] mt-1">{error}</Text>}
     </View>
   );
 }
