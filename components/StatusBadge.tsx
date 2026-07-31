@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { STATUS_COLORS, PRIORITY_COLORS } from '@/constants/theme';
 
 interface StatusBadgeProps {
@@ -9,19 +9,43 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ label, type = 'status', small }: StatusBadgeProps) {
   const colorMap = type === 'priority' ? PRIORITY_COLORS : STATUS_COLORS;
-  const colors = colorMap[label] || { bg: '#F1F5F9', text: '#475569' };
+  const badgeColors = colorMap[label] || { bg: '#F1F5F9', text: '#475569' };
 
   return (
-    <View
-      className={`self-start rounded-full ${small ? 'px-2 py-0.5' : 'px-2.5 py-1'}`}
-      style={{ backgroundColor: colors.bg }}
-    >
-      <Text
-        className={`font-semibold ${small ? 'text-[10px]' : 'text-[11px]'}`}
-        style={{ color: colors.text }}
-      >
+    <View style={[styles.badge, { backgroundColor: badgeColors.bg }, small && styles.badgeSmall]}>
+      <View style={[styles.dot, { backgroundColor: badgeColors.text }]} />
+      <Text style={[styles.label, { color: badgeColors.text, fontFamily: 'Inter-SemiBold' }, small && styles.labelSmall]}>
         {label}
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  badge: {
+    alignSelf: 'flex-start',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  badgeSmall: {
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 6,
+    gap: 4,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+  },
+  label: {
+    fontSize: 11,
+  },
+  labelSmall: {
+    fontSize: 10,
+  },
+});

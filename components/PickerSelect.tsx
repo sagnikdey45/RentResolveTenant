@@ -1,7 +1,8 @@
-import { View, Text, Pressable, Modal, FlatList } from 'react-native';
+import { View, Text, Pressable, Modal, FlatList, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { ChevronDown, Check } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { SHADOWS } from '@/constants/theme';
 
 interface PickerSelectProps {
   label: string;
@@ -16,34 +17,46 @@ export function PickerSelect({ label, value, options, onSelect, placeholder }: P
   const { colors } = useTheme();
 
   return (
-    <View className="mb-4">
-      <Text style={{ color: colors.textSecondary }} className="text-[13px] font-semibold mb-2">{label}</Text>
+    <View style={styles.container}>
+      <Text style={[styles.label, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>{label}</Text>
       <Pressable
-        className="flex-row items-center justify-between rounded-lg px-4 py-3"
-        style={{ backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.inputBorder }}
+        style={[styles.trigger, { backgroundColor: colors.inputBg, borderColor: colors.inputBorder }]}
         onPress={() => setVisible(true)}
       >
-        <Text style={{ color: value ? colors.textPrimary : colors.textMuted }} className="text-[15px] flex-1">
+        <Text
+          style={[
+            styles.triggerText,
+            { color: value ? colors.textPrimary : colors.textMuted, fontFamily: 'Inter-Regular' },
+          ]}
+        >
           {value || placeholder || 'Select...'}
         </Text>
         <ChevronDown size={18} color={colors.textMuted} />
       </Pressable>
       <Modal visible={visible} transparent animationType="fade" onRequestClose={() => setVisible(false)}>
-        <Pressable className="flex-1 justify-center px-6" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onPress={() => setVisible(false)}>
-          <View style={{ backgroundColor: colors.surface }} className="rounded-2xl max-h-[60%] py-5">
-            <Text style={{ color: colors.textPrimary }} className="text-[17px] font-bold px-5 mb-4">{label}</Text>
+        <Pressable style={styles.overlay} onPress={() => setVisible(false)}>
+          <View style={[styles.sheet, { backgroundColor: colors.surface }, SHADOWS.prominent]}>
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
+            <Text style={[styles.sheetTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>{label}</Text>
             <FlatList
               data={options}
               keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <Pressable
-                  className="flex-row items-center justify-between px-5 py-3"
-                  style={item === value ? { backgroundColor: colors.primaryLight } : undefined}
+                  style={[
+                    styles.option,
+                    item === value && { backgroundColor: colors.primaryLight },
+                  ]}
                   onPress={() => { onSelect(item); setVisible(false); }}
                 >
                   <Text
-                    style={{ color: item === value ? colors.primary : colors.textPrimary }}
-                    className={`text-[15px] ${item === value ? 'font-semibold' : ''}`}
+                    style={[
+                      styles.optionText,
+                      {
+                        color: item === value ? colors.primary : colors.textPrimary,
+                        fontFamily: item === value ? 'Inter-SemiBold' : 'Inter-Regular',
+                      },
+                    ]}
                   >
                     {item}
                   </Text>
@@ -57,3 +70,60 @@ export function PickerSelect({ label, value, options, onSelect, placeholder }: P
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  trigger: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderWidth: 1,
+  },
+  triggerText: {
+    fontSize: 15,
+    flex: 1,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  sheet: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '60%',
+    paddingBottom: 24,
+  },
+  handle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 17,
+    paddingHorizontal: 20,
+    marginBottom: 12,
+  },
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  optionText: {
+    fontSize: 15,
+  },
+});

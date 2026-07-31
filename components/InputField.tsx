@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { View, Text, TextInput, TextInputProps, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
 
 interface InputFieldProps extends TextInputProps {
@@ -9,23 +9,44 @@ interface InputFieldProps extends TextInputProps {
 export function InputField({ label, error, style, ...props }: InputFieldProps) {
   const { colors } = useTheme();
   return (
-    <View className="mb-4">
-      <Text style={{ color: colors.textSecondary }} className="text-[13px] font-semibold mb-2">{label}</Text>
+    <View style={styles.container}>
+      <Text style={[styles.label, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>{label}</Text>
       <TextInput
-        className="rounded-lg px-4 py-3 text-[15px]"
         style={[
+          styles.input,
           {
             backgroundColor: colors.inputBg,
             borderWidth: 1,
             borderColor: error ? colors.danger : colors.inputBorder,
             color: colors.textPrimary,
+            fontFamily: 'Inter-Regular',
           },
           style,
         ]}
         placeholderTextColor={colors.textMuted}
         {...props}
       />
-      {error && <Text style={{ color: colors.danger }} className="text-[11px] mt-1">{error}</Text>}
+      {error && <Text style={[styles.error, { color: colors.danger, fontFamily: 'Inter-Medium' }]}>{error}</Text>}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 13,
+    marginBottom: 8,
+  },
+  input: {
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+  },
+  error: {
+    fontSize: 11,
+    marginTop: 4,
+  },
+});

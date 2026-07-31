@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Send, LinkIcon } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_CONVERSATIONS, type Message } from '@/data/mockData';
+import { SHADOWS } from '@/constants/theme';
 
 export default function ConversationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -37,55 +38,55 @@ export default function ConversationScreen() {
 
   if (!conv) {
     return (
-      <View className="flex-1" style={{ backgroundColor: colors.background }}>
-        <View className="flex-row items-center justify-between px-5 pb-3 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={22} color={colors.textPrimary} />
-          </Pressable>
-          <Text className="text-[15px] font-bold" style={{ color: colors.textPrimary }}>Conversation Not Found</Text>
-          <View className="w-10" />
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder }]}>
+          <Pressable onPress={() => router.back()} style={styles.backButton}><ArrowLeft size={22} color={colors.textPrimary} /></Pressable>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Not Found</Text>
+          <View style={{ width: 40 }} />
         </View>
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView className="flex-1" style={{ backgroundColor: colors.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View className="flex-row items-center justify-between px-5 pb-3 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={22} color={colors.textPrimary} />
-        </Pressable>
-        <View className="flex-1 items-center">
-          <Text className="text-[15px] font-bold" style={{ color: colors.textPrimary }}>{conv.participantName}</Text>
-          <Text className="text-[11px]" style={{ color: colors.textMuted }}>{conv.participantRole}</Text>
+    <KeyboardAvoidingView style={[styles.container, { backgroundColor: colors.background }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder }]}>
+        <Pressable onPress={() => router.back()} style={styles.backButton}><ArrowLeft size={22} color={colors.textPrimary} /></Pressable>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={[styles.headerTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>{conv.participantName}</Text>
+          <Text style={[styles.headerRole, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{conv.participantRole}</Text>
         </View>
-        <View className="w-10" />
+        <View style={{ width: 40 }} />
       </View>
 
       {conv.linkedRequestTitle && (
-        <View className="flex-row items-center gap-2 px-5 py-2" style={{ backgroundColor: colors.primaryLight }}>
+        <View style={[styles.linkedBar, { backgroundColor: colors.primaryLight }]}>
           <LinkIcon size={12} color={colors.primary} />
-          <Text className="text-[11px] font-medium flex-1" numberOfLines={1} style={{ color: colors.primary }}>
+          <Text style={[styles.linkedText, { color: colors.primary, fontFamily: 'Inter-Medium' }]} numberOfLines={1}>
             {conv.linkedRequestId}: {conv.linkedRequestTitle}
           </Text>
         </View>
       )}
 
-      <ScrollView ref={scrollRef} className="flex-1" contentContainerStyle={{ padding: 20, paddingBottom: 16 }} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} style={{ flex: 1 }} contentContainerStyle={styles.messagesContent} showsVerticalScrollIndicator={false}>
         {messages.map(msg => {
           const isMe = msg.senderId === 'tenant_001';
           return (
-            <View key={msg.id} className={`mb-3 ${isMe ? 'items-end' : 'items-start'}`}>
-              <View className="max-w-[80%] rounded-xl p-3" style={{
-                backgroundColor: isMe ? colors.primary : colors.surface,
-                borderWidth: isMe ? 0 : 1,
-                borderColor: isMe ? 'transparent' : colors.border,
-                borderBottomLeftRadius: isMe ? 16 : 4,
-                borderBottomRightRadius: isMe ? 4 : 16,
-              }}>
-                {!isMe && <Text className="text-[11px] font-semibold mb-1" style={{ color: colors.primary }}>{msg.senderName}</Text>}
-                <Text className="text-[13px] leading-5" style={{ color: isMe ? '#FFFFFF' : colors.textPrimary }}>{msg.text}</Text>
-                <Text className="text-[10px] mt-1 self-end" style={{ color: isMe ? 'rgba(255,255,255,0.7)' : colors.textMuted }}>
+            <View key={msg.id} style={[styles.messageRow, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
+              <View style={[
+                styles.bubble,
+                {
+                  backgroundColor: isMe ? colors.primary : colors.surface,
+                  borderWidth: isMe ? 0 : 1,
+                  borderColor: isMe ? 'transparent' : colors.border,
+                  borderBottomLeftRadius: isMe ? 18 : 4,
+                  borderBottomRightRadius: isMe ? 4 : 18,
+                },
+                !isMe && SHADOWS.soft,
+              ]}>
+                {!isMe && <Text style={[styles.senderName, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{msg.senderName}</Text>}
+                <Text style={[styles.messageText, { color: isMe ? '#FFFFFF' : colors.textPrimary, fontFamily: 'Inter-Regular' }]}>{msg.text}</Text>
+                <Text style={[styles.messageTime, { color: isMe ? 'rgba(255,255,255,0.6)' : colors.textMuted, fontFamily: 'Inter-Regular' }]}>
                   {msg.timestamp.split(' ')[1]}
                 </Text>
               </View>
@@ -94,10 +95,9 @@ export default function ConversationScreen() {
         })}
       </ScrollView>
 
-      <View className="flex-row items-center gap-2 px-5 py-3 border-t" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+      <View style={[styles.inputBar, { backgroundColor: colors.surface, borderTopColor: colors.borderLight }]}>
         <TextInput
-          className="flex-1 rounded-full px-4 py-3 text-[13px] border"
-          style={{ backgroundColor: colors.inputBg, color: colors.textPrimary, borderColor: colors.inputBorder }}
+          style={[styles.chatInput, { backgroundColor: colors.inputBg, color: colors.textPrimary, borderColor: colors.inputBorder, fontFamily: 'Inter-Regular' }]}
           placeholder="Type a message..."
           placeholderTextColor={colors.textMuted}
           value={text}
@@ -105,8 +105,7 @@ export default function ConversationScreen() {
           onSubmitEditing={handleSend}
         />
         <Pressable
-          className={`w-10 h-10 rounded-full items-center justify-center ${!text.trim() ? 'opacity-40' : ''}`}
-          style={{ backgroundColor: colors.primary }}
+          style={[styles.sendButton, { backgroundColor: colors.primary, opacity: text.trim() ? 1 : 0.4 }]}
           onPress={handleSend}
           disabled={!text.trim()}
         >
@@ -116,3 +115,22 @@ export default function ConversationScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 12, borderBottomWidth: 1 },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 16 },
+  headerRole: { fontSize: 11, marginTop: 1 },
+  linkedBar: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 20, paddingVertical: 8 },
+  linkedText: { fontSize: 11, flex: 1 },
+  messagesContent: { padding: 20, paddingBottom: 16 },
+  messageRow: { marginBottom: 10 },
+  bubble: { maxWidth: '80%', borderRadius: 18, padding: 14 },
+  senderName: { fontSize: 11, marginBottom: 4 },
+  messageText: { fontSize: 14, lineHeight: 20 },
+  messageTime: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
+  inputBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderTopWidth: 1 },
+  chatInput: { flex: 1, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, borderWidth: 1 },
+  sendButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+});

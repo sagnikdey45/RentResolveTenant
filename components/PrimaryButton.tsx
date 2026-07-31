@@ -1,5 +1,6 @@
-import { Pressable, Text, ActivityIndicator, ViewStyle } from 'react-native';
+import { Pressable, Text, ActivityIndicator, ViewStyle, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { SHADOWS } from '@/constants/theme';
 
 interface PrimaryButtonProps {
   title: string;
@@ -27,14 +28,16 @@ export function PrimaryButton({ title, onPress, loading, variant = 'primary', ic
     <Pressable
       onPress={onPress}
       disabled={loading || disabled}
-      className="flex-row items-center justify-center gap-2 py-4 px-6 rounded-xl active:opacity-90"
-      style={[
+      style={({ pressed }) => [
+        styles.button,
         {
           backgroundColor: bg,
-          borderWidth: 1.5,
+          borderWidth: variant === 'outline' ? 1.5 : 0,
           borderColor,
-          opacity: loading || disabled ? 0.6 : 1,
+          opacity: loading || disabled ? 0.6 : pressed ? 0.9 : 1,
+          transform: [{ scale: pressed ? 0.985 : 1 }],
         },
+        variant === 'primary' && SHADOWS.card,
         style,
       ]}
     >
@@ -43,9 +46,24 @@ export function PrimaryButton({ title, onPress, loading, variant = 'primary', ic
       ) : (
         <>
           {icon}
-          <Text style={{ color: textColor }} className="text-[15px] font-semibold">{title}</Text>
+          <Text style={[styles.label, { color: textColor, fontFamily: 'Inter-SemiBold' }]}>{title}</Text>
         </>
       )}
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 14,
+  },
+  label: {
+    fontSize: 15,
+  },
+});

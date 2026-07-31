@@ -1,5 +1,6 @@
-import { View, Text } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { SHADOWS } from '@/constants/theme';
 
 interface StatCardProps {
   label: string;
@@ -11,18 +12,49 @@ interface StatCardProps {
 export function StatCard({ label, value, color, icon }: StatCardProps) {
   const { colors } = useTheme();
   return (
-    <View
-      style={{ borderLeftWidth: 3, borderLeftColor: color, backgroundColor: colors.surface }}
-      className="rounded-xl p-4 w-[48%] mb-3"
-    >
-      <View
-        className="w-9 h-9 rounded-lg items-center justify-center mb-2"
-        style={{ backgroundColor: color + '18' }}
-      >
+    <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
+      <View style={[styles.iconWrap, { backgroundColor: color + '14' }]}>
         {icon}
       </View>
-      <Text style={{ color: colors.textPrimary }} className="text-2xl font-bold">{value}</Text>
-      <Text style={{ color: colors.textMuted }} className="text-[11px] mt-0.5">{label}</Text>
+      <Text style={[styles.value, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>{value}</Text>
+      <Text style={[styles.label, { color: colors.textMuted, fontFamily: 'Inter-Medium' }]}>{label}</Text>
+      <View style={[styles.accentBar, { backgroundColor: color }]} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    borderRadius: 16,
+    padding: 16,
+    width: '48%',
+    marginBottom: 12,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  iconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  value: {
+    fontSize: 28,
+    lineHeight: 34,
+  },
+  label: {
+    fontSize: 12,
+    marginTop: 4,
+    letterSpacing: 0.2,
+  },
+  accentBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 16,
+    right: 16,
+    height: 3,
+    borderRadius: 3,
+  },
+});

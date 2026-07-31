@@ -1,27 +1,27 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Alert, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Camera, AlertTriangle } from 'lucide-react-native';
+import { Camera, AlertTriangle } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { InputField } from '@/components/InputField';
 import { PickerSelect } from '@/components/PickerSelect';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { DISPUTE_CATEGORIES, MOCK_DISPUTES, MOCK_REQUESTS } from '@/data/mockData';
+import { SHADOWS } from '@/constants/theme';
 
 const DISPUTE_STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   Submitted: { bg: '#DBEAFE', text: '#1E40AF' },
   'Under Review': { bg: '#FEF3C7', text: '#92400E' },
-  'Landlord Responded': { bg: '#EDE9FE', text: '#5B21B6' },
+  'Landlord Responded': { bg: '#E0E7FF', text: '#4338CA' },
   'Awaiting Tenant Response': { bg: '#FFEDD5', text: '#9A3412' },
-  Resolved: { bg: '#DCFCE7', text: '#166534' },
+  Resolved: { bg: '#D1FAE5', text: '#166534' },
   Closed: { bg: '#F1F5F9', text: '#475569' },
 };
 
 export default function DisputeScreen() {
   const { requestId } = useLocalSearchParams<{ requestId?: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const linkedRequest = requestId ? MOCK_REQUESTS.find(r => r.id === requestId) : null;
   const [title, setTitle] = useState('');
@@ -32,7 +32,6 @@ export default function DisputeScreen() {
   const [tab, setTab] = useState<'new' | 'existing'>('new');
 
   const showAlert = (msg: string) => Platform.OS === 'web' ? window.alert(msg) : Alert.alert('', msg);
-
   const handleSubmit = () => {
     if (!title.trim() || !category || !description.trim()) { showAlert('Please fill in title, category, and description.'); return; }
     setLoading(true);
@@ -40,63 +39,80 @@ export default function DisputeScreen() {
   };
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <View className="flex-row items-center justify-between px-5 pb-4 border-b" style={{ backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder, paddingTop: insets.top }}>
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center"><ArrowLeft size={22} color={colors.textPrimary} /></Pressable>
-        <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>Disputes</Text>
-        <View className="w-10" />
-      </View>
-
-      <View className="flex-row px-5 gap-3 pb-3" style={{ backgroundColor: colors.surface }}>
-        <Pressable className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: tab === 'new' ? colors.primary : colors.background }} onPress={() => setTab('new')}>
-          <Text className="text-[13px] font-semibold" style={{ color: tab === 'new' ? '#FFFFFF' : colors.textSecondary }}>New Dispute</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScreenHeader title="Disputes" />
+      <View style={[styles.tabBar, { backgroundColor: colors.surface }]}>
+        <Pressable style={[styles.tab, { backgroundColor: tab === 'new' ? colors.primary : colors.surfaceSecondary }]} onPress={() => setTab('new')}>
+          <Text style={[styles.tabText, { color: tab === 'new' ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>New Dispute</Text>
         </Pressable>
-        <Pressable className="flex-1 py-3 rounded-lg items-center" style={{ backgroundColor: tab === 'existing' ? colors.primary : colors.background }} onPress={() => setTab('existing')}>
-          <Text className="text-[13px] font-semibold" style={{ color: tab === 'existing' ? '#FFFFFF' : colors.textSecondary }}>My Disputes</Text>
+        <Pressable style={[styles.tab, { backgroundColor: tab === 'existing' ? colors.primary : colors.surfaceSecondary }]} onPress={() => setTab('existing')}>
+          <Text style={[styles.tabText, { color: tab === 'existing' ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>My Disputes</Text>
         </Pressable>
       </View>
 
       {tab === 'new' ? (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {linkedRequest && (
-            <View className="rounded-lg p-4 mb-5 border" style={{ backgroundColor: '#FEF08A', borderColor: '#FCD34D' }}>
-              <Text className="text-[11px] font-semibold" style={{ color: '#B45309' }}>Linked Request</Text>
-              <Text className="text-[13px] font-semibold mt-1" style={{ color: colors.textPrimary }}>{linkedRequest.id}: {linkedRequest.title}</Text>
+            <View style={[styles.linkedCard, { backgroundColor: colors.warningLight }]}>
+              <Text style={[styles.linkedLabel, { color: colors.warning, fontFamily: 'Inter-SemiBold' }]}>Linked Request</Text>
+              <Text style={[styles.linkedTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{linkedRequest.id}: {linkedRequest.title}</Text>
             </View>
           )}
           <InputField label="Dispute Title" placeholder="Brief title for your dispute" value={title} onChangeText={setTitle} />
           <PickerSelect label="Dispute Category" value={category} options={DISPUTE_CATEGORIES} onSelect={setCategory} placeholder="Select category" />
           <InputField label="Description" placeholder="Describe the issue in detail..." value={description} onChangeText={setDescription} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
           <InputField label="Expected Resolution" placeholder="What outcome do you expect?" value={expected} onChangeText={setExpected} multiline numberOfLines={2} style={{ minHeight: 60, textAlignVertical: 'top' }} />
-          <Pressable className="flex-row items-center justify-center gap-2 border border-dashed rounded-lg py-5" style={{ borderColor: colors.border }} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
+          <Pressable style={[styles.evidenceBtn, { borderColor: colors.border }]} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
             <Camera size={20} color={colors.primary} />
-            <Text className="text-[13px] font-medium" style={{ color: colors.primary }}>Add Evidence</Text>
+            <Text style={[styles.evidenceBtnText, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>Add Evidence</Text>
           </Pressable>
           <PrimaryButton title="Submit Dispute" variant="danger" icon={<AlertTriangle size={18} color="#FFFFFF" />} onPress={handleSubmit} loading={loading} style={{ marginTop: 20 }} />
-          <View className="h-10" />
+          <View style={{ height: 32 }} />
         </ScrollView>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {MOCK_DISPUTES.map(d => {
-            const disputeColors = DISPUTE_STATUS_COLORS[d.status] || DISPUTE_STATUS_COLORS.Submitted;
+            const dc = DISPUTE_STATUS_COLORS[d.status] || DISPUTE_STATUS_COLORS.Submitted;
             return (
-              <View key={d.id} className="rounded-xl p-4 mb-3 shadow-sm" style={{ backgroundColor: colors.surface }}>
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-[11px] font-medium" style={{ color: colors.textMuted }}>{d.id}</Text>
-                  <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: disputeColors.bg }}>
-                    <Text className="text-[10px] font-semibold" style={{ color: disputeColors.text }}>{d.status}</Text>
+              <View key={d.id} style={[styles.disputeCard, { backgroundColor: colors.surface }, SHADOWS.card]}>
+                <View style={styles.disputeHeader}>
+                  <Text style={[styles.disputeId, { color: colors.textMuted, fontFamily: 'Inter-Medium' }]}>{d.id}</Text>
+                  <View style={[styles.disputeStatusBadge, { backgroundColor: dc.bg }]}>
+                    <Text style={[styles.disputeStatusText, { color: dc.text, fontFamily: 'Inter-SemiBold' }]}>{d.status}</Text>
                   </View>
                 </View>
-                <Text className="text-[15px] font-semibold mb-1" style={{ color: colors.textPrimary }}>{d.title}</Text>
-                <Text className="text-[11px] font-medium mb-2" style={{ color: colors.primary }}>{d.category}</Text>
-                <Text className="text-[11px] leading-[18px]" numberOfLines={2} style={{ color: colors.textSecondary }}>{d.description}</Text>
-                <Text className="text-[11px] mt-2" style={{ color: colors.textMuted }}>Submitted: {d.submittedDate}</Text>
+                <Text style={[styles.disputeTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{d.title}</Text>
+                <Text style={[styles.disputeCategory, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>{d.category}</Text>
+                <Text style={[styles.disputeDesc, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]} numberOfLines={2}>{d.description}</Text>
+                <Text style={[styles.disputeDate, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>Submitted: {d.submittedDate}</Text>
               </View>
             );
           })}
-          <View className="h-10" />
+          <View style={{ height: 32 }} />
         </ScrollView>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  tabBar: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 12, gap: 10 },
+  tab: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+  tabText: { fontSize: 13 },
+  scrollContent: { padding: 20 },
+  linkedCard: { borderRadius: 14, padding: 16, marginBottom: 20 },
+  linkedLabel: { fontSize: 12 },
+  linkedTitle: { fontSize: 14, marginTop: 4 },
+  evidenceBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1, borderStyle: 'dashed', borderRadius: 14, paddingVertical: 20 },
+  evidenceBtnText: { fontSize: 14 },
+  disputeCard: { borderRadius: 16, padding: 16, marginBottom: 12 },
+  disputeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  disputeId: { fontSize: 11 },
+  disputeStatusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  disputeStatusText: { fontSize: 10 },
+  disputeTitle: { fontSize: 15, marginBottom: 4 },
+  disputeCategory: { fontSize: 12, marginBottom: 6 },
+  disputeDesc: { fontSize: 12, lineHeight: 18 },
+  disputeDate: { fontSize: 11, marginTop: 8 },
+});

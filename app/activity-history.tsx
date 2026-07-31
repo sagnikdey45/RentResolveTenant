@@ -1,18 +1,19 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  ArrowLeft, Plus, RefreshCw, MessageSquare, UserCheck, Calendar,
+  Plus, RefreshCw, MessageSquare, UserCheck, Calendar,
   Wallet, CheckCircle, RotateCcw, AlertTriangle, FileText, Clock,
 } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_ACTIVITY } from '@/data/mockData';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { SHADOWS } from '@/constants/theme';
 
 const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
-  request_created: { icon: Plus, color: '#2563EB' },
+  request_created: { icon: Plus, color: '#1E6B5A' },
   status_changed: { icon: RefreshCw, color: '#0284C7' },
   comment_added: { icon: MessageSquare, color: '#059669' },
-  technician_assigned: { icon: UserCheck, color: '#7C3AED' },
+  technician_assigned: { icon: UserCheck, color: '#0D9488' },
   visit_scheduled: { icon: Calendar, color: '#D97706' },
   rent_paid: { icon: Wallet, color: '#059669' },
   request_resolved: { icon: CheckCircle, color: '#16A34A' },
@@ -24,54 +25,49 @@ const TYPE_CONFIG: Record<string, { icon: any; color: string }> = {
 
 export default function ActivityHistoryScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <View
-        className="flex-row items-center justify-between px-5 pb-4 border-b"
-        style={{
-          paddingTop: insets.top,
-          backgroundColor: colors.headerBg,
-          borderBottomColor: colors.headerBorder,
-        }}
-      >
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={22} color={colors.textPrimary} />
-        </Pressable>
-        <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>Activity History</Text>
-        <View className="w-10" />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScreenHeader title="Activity History" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {MOCK_ACTIVITY.map((item, i) => {
           const config = TYPE_CONFIG[item.type] || { icon: Clock, color: colors.textMuted };
           const Icon = config.icon;
           return (
-            <View key={item.id} className="flex-row">
-              <View className="w-10 items-center">
-                <View
-                  className="w-9 h-9 rounded-full items-center justify-center"
-                  style={{ backgroundColor: config.color + '18' }}
-                >
-                  <Icon size={16} color={config.color} />
+            <View key={item.id} style={styles.timelineRow}>
+              <View style={styles.timelineSide}>
+                <View style={[styles.timelineDot, { backgroundColor: config.color + '18' }]}>
+                  <Icon size={14} color={config.color} />
                 </View>
-                {i < MOCK_ACTIVITY.length - 1 && <View className="w-0.5 flex-1 my-0.5" style={{ backgroundColor: colors.border }} />}
+                {i < MOCK_ACTIVITY.length - 1 && <View style={[styles.timelineLine, { backgroundColor: colors.borderLight }]} />}
               </View>
               <Pressable
-                className="flex-1 rounded-lg p-4 ml-3 mb-3 shadow-sm"
-                style={{ backgroundColor: colors.surface }}
+                style={[styles.timelineCard, { backgroundColor: colors.surface }, SHADOWS.soft]}
                 onPress={() => item.linkedRequestId && router.push({ pathname: '/request-detail', params: { id: item.linkedRequestId } })}
               >
-                <Text className="text-[13px] font-semibold" style={{ color: colors.textPrimary }}>{item.title}</Text>
-                <Text className="text-[11px] mt-1 leading-[18px]" style={{ color: colors.textSecondary }}>{item.description}</Text>
-                <Text className="text-[11px] mt-2" style={{ color: colors.textMuted }}>{item.timestamp}</Text>
+                <Text style={[styles.timelineTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{item.title}</Text>
+                <Text style={[styles.timelineDesc, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{item.description}</Text>
+                <Text style={[styles.timelineTime, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{item.timestamp}</Text>
               </Pressable>
             </View>
           );
         })}
-        <View className="h-8" />
+        <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { padding: 20 },
+  timelineRow: { flexDirection: 'row' },
+  timelineSide: { width: 40, alignItems: 'center' },
+  timelineDot: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  timelineLine: { width: 2, flex: 1, marginVertical: 2 },
+  timelineCard: { flex: 1, borderRadius: 14, padding: 14, marginLeft: 12, marginBottom: 10 },
+  timelineTitle: { fontSize: 14 },
+  timelineDesc: { fontSize: 12, marginTop: 4, lineHeight: 18 },
+  timelineTime: { fontSize: 11, marginTop: 6 },
+});

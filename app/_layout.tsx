@@ -1,57 +1,51 @@
-import '../global.css';
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts } from 'expo-font';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from '@expo-google-fonts/inter';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider } from '@/context/AuthContext';
-import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 
-function AppStack() {
-  const { isDark, colors } = useTheme();
-
-  return (
-    <>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: 'fade',
-          contentStyle: { backgroundColor: colors.background },
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="create-request" />
-        <Stack.Screen name="request-detail" />
-        <Stack.Screen name="reopen-request" />
-        <Stack.Screen name="feedback" />
-        <Stack.Screen name="dispute" />
-        <Stack.Screen name="visit-scheduling" />
-        <Stack.Screen name="conversation" />
-        <Stack.Screen name="lease-documents" />
-        <Stack.Screen name="property-info" />
-        <Stack.Screen name="notifications" />
-        <Stack.Screen name="announcements" />
-        <Stack.Screen name="activity-history" />
-        <Stack.Screen name="help-support" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
-    </>
-  );
-}
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useFrameworkReady();
 
+  const [fontsLoaded, fontError] = useFonts({
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Medium': Inter_500Medium,
+    'Inter-SemiBold': Inter_600SemiBold,
+    'Inter-Bold': Inter_700Bold,
+    'Inter-ExtraBold': Inter_800ExtraBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <AppStack />
-        </AuthProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+          <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

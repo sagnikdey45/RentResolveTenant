@@ -1,32 +1,26 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  ArrowLeft, User, Wrench, Calendar, Clock, MapPin,
+  User, Wrench, Calendar, Clock, MapPin,
   MessageSquare, RotateCcw, Star, AlertTriangle, Image as ImageIcon,
 } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_REQUESTS } from '@/data/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { SHADOWS } from '@/constants/theme';
 
 export default function RequestDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const request = MOCK_REQUESTS.find(r => r.id === id);
 
   if (!request) {
     return (
-      <View className="flex-1" style={{ backgroundColor: colors.background }}>
-        <View className="flex-row items-center justify-between px-5 pb-4 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
-          <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-            <ArrowLeft size={22} color={colors.textPrimary} />
-          </Pressable>
-          <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>Request Not Found</Text>
-          <View className="w-10" />
-        </View>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <ScreenHeader title="Request Not Found" />
       </View>
     );
   }
@@ -35,124 +29,98 @@ export default function RequestDetailScreen() {
   const canEscalate = !isResolved && !['Escalated'].includes(request.status);
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <View className="flex-row items-center justify-between px-5 pb-4 border-b" style={{ paddingTop: insets.top, backgroundColor: colors.headerBg, borderColor: colors.headerBorder }}>
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={22} color={colors.textPrimary} />
-        </Pressable>
-        <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>{request.id}</Text>
-        <View className="w-10" />
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
-        <View className="mb-5">
-          <Text className="text-xl font-bold mb-3" style={{ color: colors.textPrimary }}>{request.title}</Text>
-          <View className="flex-row gap-2 flex-wrap">
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScreenHeader title={request.id} />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.titleSection}>
+          <Text style={[styles.title, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>{request.title}</Text>
+          <View style={styles.badgeRow}>
             <StatusBadge label={request.status} />
             <StatusBadge label={request.priority} type="priority" />
             {request.isEmergency && (
-              <View className="flex-row items-center gap-1 px-2 py-1 rounded-full" style={{ backgroundColor: colors.dangerLight }}>
+              <View style={[styles.urgentBadge, { backgroundColor: colors.dangerLight }]}>
                 <AlertTriangle size={10} color={colors.danger} />
-                <Text className="text-[10px] font-bold" style={{ color: colors.danger }}>EMERGENCY</Text>
+                <Text style={[styles.urgentText, { color: colors.danger, fontFamily: 'Inter-Bold' }]}>EMERGENCY</Text>
               </View>
             )}
           </View>
         </View>
 
-        <View className="rounded-xl p-4 gap-3 shadow-sm" style={{ backgroundColor: colors.surface }}>
+        <View style={[styles.detailCard, { backgroundColor: colors.surface }, SHADOWS.card]}>
           <DetailRow icon={<Clock size={16} color={colors.textMuted} />} label="Submitted" value={request.submittedDate} colors={colors} />
+          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
           <DetailRow icon={<Calendar size={16} color={colors.textMuted} />} label="Expected Resolution" value={request.expectedResolution} colors={colors} />
+          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
           <DetailRow icon={<MapPin size={16} color={colors.textMuted} />} label="Property Area" value={request.propertyArea} colors={colors} />
+          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
           <DetailRow icon={<Wrench size={16} color={colors.textMuted} />} label="Category" value={`${request.category} / ${request.subcategory}`} colors={colors} />
         </View>
 
-        <View className="mt-6">
-          <Text className="text-[15px] font-bold mb-3" style={{ color: colors.textPrimary }}>Description</Text>
-          <Text className="text-[13px] leading-[22px]" style={{ color: colors.textSecondary }}>{request.description}</Text>
-        </View>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Description</Text>
+        <Text style={[styles.description, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{request.description}</Text>
 
         {(request.assignedTo || request.technicianName) && (
-          <View className="mt-6">
-            <Text className="text-[15px] font-bold mb-3" style={{ color: colors.textPrimary }}>Assigned Team</Text>
-            <View className="rounded-xl p-4 gap-3 shadow-sm" style={{ backgroundColor: colors.surface }}>
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Assigned Team</Text>
+            <View style={[styles.detailCard, { backgroundColor: colors.surface }, SHADOWS.card]}>
               {request.assignedTo && <DetailRow icon={<User size={16} color={colors.primary} />} label="Manager" value={request.assignedTo} colors={colors} />}
-              {request.technicianName && <DetailRow icon={<Wrench size={16} color={colors.accent} />} label="Technician" value={`${request.technicianName} (${request.technicianPhone})`} colors={colors} />}
+              {request.assignedTo && request.technicianName && <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />}
+              {request.technicianName && <DetailRow icon={<Wrench size={16} color={colors.success} />} label="Technician" value={`${request.technicianName} (${request.technicianPhone})`} colors={colors} />}
             </View>
-          </View>
+          </>
         )}
 
         {request.evidence.length > 0 && (
-          <View className="mt-6">
-            <Text className="text-[15px] font-bold mb-3" style={{ color: colors.textPrimary }}>Evidence ({request.evidence.length})</Text>
-            <View className="flex-row flex-wrap gap-3">
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Evidence ({request.evidence.length})</Text>
+            <View style={styles.evidenceGrid}>
               {request.evidence.map((file, i) => (
-                <View key={i} className="rounded-lg border p-4 items-center w-[30%] gap-2" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
-                  <ImageIcon size={24} color={colors.textMuted} />
-                  <Text className="text-[10px] text-center" numberOfLines={1} style={{ color: colors.textMuted }}>{file}</Text>
+                <View key={i} style={[styles.evidenceItem, { backgroundColor: colors.surface, borderColor: colors.border }, SHADOWS.soft]}>
+                  <ImageIcon size={22} color={colors.textMuted} />
+                  <Text style={[styles.evidenceText, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]} numberOfLines={1}>{file}</Text>
                 </View>
               ))}
             </View>
-          </View>
+          </>
         )}
 
         {request.resolutionNotes && (
-          <View className="mt-6">
-            <Text className="text-[15px] font-bold mb-3" style={{ color: colors.textPrimary }}>Resolution Notes</Text>
-            <View className="rounded-lg p-4" style={{ backgroundColor: colors.successLight }}>
-              <Text className="text-[13px] leading-5" style={{ color: colors.success }}>{request.resolutionNotes}</Text>
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Resolution Notes</Text>
+            <View style={[styles.resolutionCard, { backgroundColor: colors.successLight }]}>
+              <Text style={[styles.resolutionText, { color: colors.success, fontFamily: 'Inter-Medium' }]}>{request.resolutionNotes}</Text>
             </View>
-          </View>
+          </>
         )}
 
-        <View className="mt-6">
-          <Text className="text-[15px] font-bold mb-3" style={{ color: colors.textPrimary }}>Status Timeline</Text>
-          {request.timeline.map((event, i) => (
-            <View key={event.id} className="flex-row min-h-[64px]">
-              <View className="w-6 items-center">
-                <View className="w-2.5 h-2.5 rounded-full mt-1" style={{ backgroundColor: i === 0 ? colors.primary : colors.textMuted }} />
-                {i < request.timeline.length - 1 && <View className="w-0.5 flex-1 mt-0.5" style={{ backgroundColor: colors.border }} />}
-              </View>
-              <View className="flex-1 pl-3 pb-5">
-                <Text className="text-[13px] font-semibold" style={{ color: colors.textPrimary }}>{event.event}</Text>
-                <Text className="text-[11px] mt-0.5" style={{ color: colors.textSecondary }}>{event.description}</Text>
-                <Text className="text-[11px] mt-1" style={{ color: colors.textMuted }}>{event.date} - {event.actor}</Text>
-              </View>
+        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Status Timeline</Text>
+        {request.timeline.map((event, i) => (
+          <View key={event.id} style={styles.timelineItem}>
+            <View style={styles.timelineLine}>
+              <View style={[styles.timelineDot, { backgroundColor: i === 0 ? colors.primary : colors.border }]} />
+              {i < request.timeline.length - 1 && <View style={[styles.timelineBar, { backgroundColor: colors.borderLight }]} />}
             </View>
-          ))}
-        </View>
+            <View style={styles.timelineContent}>
+              <Text style={[styles.timelineEvent, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{event.event}</Text>
+              <Text style={[styles.timelineDesc, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{event.description}</Text>
+              <Text style={[styles.timelineMeta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{event.date} - {event.actor}</Text>
+            </View>
+          </View>
+        ))}
 
-        <View className="mt-6 gap-3">
-          <PrimaryButton
-            title="Message Landlord"
-            variant="outline"
-            icon={<MessageSquare size={18} color={colors.primary} />}
-            onPress={() => router.push('/(tabs)/messages')}
-          />
+        <View style={styles.actions}>
+          <PrimaryButton title="Message Landlord" variant="outline" icon={<MessageSquare size={18} color={colors.primary} />} onPress={() => router.push('/(tabs)/messages')} />
           {isResolved && (
             <>
-              <PrimaryButton
-                title="Reopen Request"
-                variant="outline"
-                icon={<RotateCcw size={18} color={colors.primary} />}
-                onPress={() => router.push({ pathname: '/reopen-request', params: { id: request.id } })}
-              />
-              <PrimaryButton
-                title="Submit Feedback"
-                icon={<Star size={18} color="#FFFFFF" />}
-                onPress={() => router.push({ pathname: '/feedback', params: { id: request.id } })}
-              />
+              <PrimaryButton title="Reopen Request" variant="outline" icon={<RotateCcw size={18} color={colors.primary} />} onPress={() => router.push({ pathname: '/reopen-request', params: { id: request.id } })} />
+              <PrimaryButton title="Submit Feedback" icon={<Star size={18} color="#FFFFFF" />} onPress={() => router.push({ pathname: '/feedback', params: { id: request.id } })} />
             </>
           )}
           {canEscalate && (
-            <PrimaryButton
-              title="Escalate Issue"
-              variant="danger"
-              icon={<AlertTriangle size={18} color="#FFFFFF" />}
-              onPress={() => router.push({ pathname: '/dispute', params: { requestId: request.id } })}
-            />
+            <PrimaryButton title="Escalate Issue" variant="danger" icon={<AlertTriangle size={18} color="#FFFFFF" />} onPress={() => router.push({ pathname: '/dispute', params: { requestId: request.id } })} />
           )}
         </View>
-        <View className="h-10" />
+        <View style={{ height: 32 }} />
       </ScrollView>
     </View>
   );
@@ -160,12 +128,43 @@ export default function RequestDetailScreen() {
 
 function DetailRow({ icon, label, value, colors }: { icon: React.ReactNode; label: string; value: string; colors: any }) {
   return (
-    <View className="flex-row items-center gap-3">
+    <View style={styles.detailRow}>
       {icon}
-      <View className="flex-1">
-        <Text className="text-[11px]" style={{ color: colors.textMuted }}>{label}</Text>
-        <Text className="text-[13px] font-medium mt-0.5" style={{ color: colors.textPrimary }}>{value}</Text>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.detailLabel, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{label}</Text>
+        <Text style={[styles.detailValue, { color: colors.textPrimary, fontFamily: 'Inter-Medium' }]}>{value}</Text>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { padding: 20 },
+  titleSection: { marginBottom: 20 },
+  title: { fontSize: 20, marginBottom: 12 },
+  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  urgentBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  urgentText: { fontSize: 10 },
+  detailCard: { borderRadius: 16, padding: 16 },
+  detailRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 4 },
+  detailLabel: { fontSize: 11 },
+  detailValue: { fontSize: 14, marginTop: 2 },
+  divider: { height: 1, marginVertical: 10 },
+  sectionTitle: { fontSize: 16, marginTop: 24, marginBottom: 12 },
+  description: { fontSize: 14, lineHeight: 22 },
+  evidenceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  evidenceItem: { borderRadius: 12, borderWidth: 1, padding: 16, alignItems: 'center', width: '30%', gap: 6 },
+  evidenceText: { fontSize: 10, textAlign: 'center' },
+  resolutionCard: { borderRadius: 14, padding: 16 },
+  resolutionText: { fontSize: 13, lineHeight: 20 },
+  timelineItem: { flexDirection: 'row', minHeight: 64 },
+  timelineLine: { width: 24, alignItems: 'center' },
+  timelineDot: { width: 10, height: 10, borderRadius: 5, marginTop: 3 },
+  timelineBar: { width: 2, flex: 1, marginTop: 2 },
+  timelineContent: { flex: 1, paddingLeft: 12, paddingBottom: 20 },
+  timelineEvent: { fontSize: 13 },
+  timelineDesc: { fontSize: 11, marginTop: 3, lineHeight: 16 },
+  timelineMeta: { fontSize: 11, marginTop: 4 },
+  actions: { gap: 10, marginTop: 24 },
+});

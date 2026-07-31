@@ -1,50 +1,60 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Megaphone } from 'lucide-react-native';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { Megaphone } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_ANNOUNCEMENTS } from '@/data/mockData';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { SHADOWS } from '@/constants/theme';
 
-const PRIORITY_COLORS = {
-  High: { text: '#DC2626', border: '#DC2626' },
-  Medium: { text: '#D97706', border: '#D97706' },
-  Low: { text: '#0284C7', border: '#0284C7' },
+const PRIORITY_STYLES: Record<string, { color: string }> = {
+  High: { color: '#DC2626' },
+  Medium: { color: '#D97706' },
+  Low: { color: '#0284C7' },
 };
 
 export default function AnnouncementsScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
-      <View className="flex-row items-center justify-between px-5 pb-4 border-b" style={{ backgroundColor: colors.headerBg, borderBottomColor: colors.headerBorder, paddingTop: insets.top }}>
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center"><ArrowLeft size={22} color={colors.textPrimary} /></Pressable>
-        <Text className="text-[17px] font-bold" style={{ color: colors.textPrimary }}>Announcements</Text>
-        <View className="w-10" />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20 }}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScreenHeader title="Announcements" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {MOCK_ANNOUNCEMENTS.map(ann => {
-          const announcementColors = PRIORITY_COLORS[ann.priority];
+          const ac = PRIORITY_STYLES[ann.priority] || PRIORITY_STYLES.Low;
           return (
-            <View key={ann.id} className="rounded-xl p-4 mb-3 shadow-sm" style={{ backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: announcementColors.border }}>
-              <View className="flex-row items-center gap-2 mb-3">
-                <Megaphone size={16} color={announcementColors.text} />
-                <Text className="flex-1 text-[15px] font-semibold" style={{ color: colors.textPrimary }}>{ann.title}</Text>
-                <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: announcementColors.text + '18' }}>
-                  <Text className="text-[10px] font-semibold" style={{ color: announcementColors.text }}>{ann.priority}</Text>
+            <View key={ann.id} style={[styles.card, { backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: ac.color }, SHADOWS.card]}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.icon, { backgroundColor: ac.color + '14' }]}>
+                  <Megaphone size={14} color={ac.color} />
+                </View>
+                <Text style={[styles.title, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]} numberOfLines={1}>{ann.title}</Text>
+                <View style={[styles.badge, { backgroundColor: ac.color + '14' }]}>
+                  <Text style={[styles.badgeText, { color: ac.color, fontFamily: 'Inter-SemiBold' }]}>{ann.priority}</Text>
                 </View>
               </View>
-              <Text className="text-[13px] leading-[22px]" style={{ color: colors.textSecondary }}>{ann.message}</Text>
-              <View className="flex-row justify-between mt-3">
-                <Text className="text-[11px]" style={{ color: colors.textMuted }}>{ann.date}</Text>
-                <Text className="text-[11px]" style={{ color: colors.textMuted }}>Posted by {ann.postedBy}</Text>
+              <Text style={[styles.message, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{ann.message}</Text>
+              <View style={styles.metaRow}>
+                <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{ann.date}</Text>
+                <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>by {ann.postedBy}</Text>
               </View>
             </View>
           );
         })}
-        <View className="h-8" />
+        <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { padding: 20 },
+  card: { borderRadius: 16, padding: 16, marginBottom: 12 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
+  icon: { width: 28, height: 28, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  title: { flex: 1, fontSize: 15 },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  badgeText: { fontSize: 10 },
+  message: { fontSize: 13, lineHeight: 21 },
+  metaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 },
+  meta: { fontSize: 11 },
+});
