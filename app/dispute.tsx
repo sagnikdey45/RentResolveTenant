@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { Camera, AlertTriangle } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { InputField } from '@/components/InputField';
@@ -42,50 +44,70 @@ export default function DisputeScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Disputes" />
       <View style={[styles.tabBar, { backgroundColor: colors.surface }]}>
-        <Pressable style={[styles.tab, { backgroundColor: tab === 'new' ? colors.primary : colors.surfaceSecondary }]} onPress={() => setTab('new')}>
-          <Text style={[styles.tabText, { color: tab === 'new' ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>New Dispute</Text>
+        <Pressable style={styles.tabWrap} onPress={() => setTab('new')}>
+          {tab === 'new' ? (
+            <LinearGradient colors={['#1E6B5A', '#0D9488'] as [string, string]} style={styles.tab}>
+              <Text style={[styles.tabText, { color: '#FFFFFF', fontFamily: 'Inter-SemiBold' }]}>New Dispute</Text>
+            </LinearGradient>
+          ) : (
+            <View style={[styles.tab, { backgroundColor: colors.surfaceSecondary }]}>
+              <Text style={[styles.tabText, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>New Dispute</Text>
+            </View>
+          )}
         </Pressable>
-        <Pressable style={[styles.tab, { backgroundColor: tab === 'existing' ? colors.primary : colors.surfaceSecondary }]} onPress={() => setTab('existing')}>
-          <Text style={[styles.tabText, { color: tab === 'existing' ? '#FFFFFF' : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>My Disputes</Text>
+        <Pressable style={styles.tabWrap} onPress={() => setTab('existing')}>
+          {tab === 'existing' ? (
+            <LinearGradient colors={['#1E6B5A', '#0D9488'] as [string, string]} style={styles.tab}>
+              <Text style={[styles.tabText, { color: '#FFFFFF', fontFamily: 'Inter-SemiBold' }]}>My Disputes</Text>
+            </LinearGradient>
+          ) : (
+            <View style={[styles.tab, { backgroundColor: colors.surfaceSecondary }]}>
+              <Text style={[styles.tabText, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>My Disputes</Text>
+            </View>
+          )}
         </Pressable>
       </View>
 
       {tab === 'new' ? (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           {linkedRequest && (
-            <View style={[styles.linkedCard, { backgroundColor: colors.warningLight }]}>
+            <Animated.View entering={FadeInDown.duration(400)} style={[styles.linkedCard, { backgroundColor: colors.warningLight }]}>
               <Text style={[styles.linkedLabel, { color: colors.warning, fontFamily: 'Inter-SemiBold' }]}>Linked Request</Text>
               <Text style={[styles.linkedTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{linkedRequest.id}: {linkedRequest.title}</Text>
-            </View>
+            </Animated.View>
           )}
-          <InputField label="Dispute Title" placeholder="Brief title for your dispute" value={title} onChangeText={setTitle} />
-          <PickerSelect label="Dispute Category" value={category} options={DISPUTE_CATEGORIES} onSelect={setCategory} placeholder="Select category" />
-          <InputField label="Description" placeholder="Describe the issue in detail..." value={description} onChangeText={setDescription} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
-          <InputField label="Expected Resolution" placeholder="What outcome do you expect?" value={expected} onChangeText={setExpected} multiline numberOfLines={2} style={{ minHeight: 60, textAlignVertical: 'top' }} />
-          <Pressable style={[styles.evidenceBtn, { borderColor: colors.border }]} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
-            <Camera size={20} color={colors.primary} />
-            <Text style={[styles.evidenceBtnText, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>Add Evidence</Text>
-          </Pressable>
-          <PrimaryButton title="Submit Dispute" variant="danger" icon={<AlertTriangle size={18} color="#FFFFFF" />} onPress={handleSubmit} loading={loading} style={{ marginTop: 20 }} />
+          <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+            <InputField label="Dispute Title" placeholder="Brief title for your dispute" value={title} onChangeText={setTitle} />
+            <PickerSelect label="Dispute Category" value={category} options={DISPUTE_CATEGORIES} onSelect={setCategory} placeholder="Select category" />
+            <InputField label="Description" placeholder="Describe the issue in detail..." value={description} onChangeText={setDescription} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
+            <InputField label="Expected Resolution" placeholder="What outcome do you expect?" value={expected} onChangeText={setExpected} multiline numberOfLines={2} style={{ minHeight: 60, textAlignVertical: 'top' }} />
+            <Pressable style={[styles.evidenceBtn, { borderColor: colors.border }]} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
+              <Camera size={20} color={colors.primary} />
+              <Text style={[styles.evidenceBtnText, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>Add Evidence</Text>
+            </Pressable>
+            <PrimaryButton title="Submit Dispute" variant="danger" icon={<AlertTriangle size={18} color="#FFFFFF" />} onPress={handleSubmit} loading={loading} style={{ marginTop: 20 }} />
+          </Animated.View>
           <View style={{ height: 32 }} />
         </ScrollView>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          {MOCK_DISPUTES.map(d => {
+          {MOCK_DISPUTES.map((d, index) => {
             const dc = DISPUTE_STATUS_COLORS[d.status] || DISPUTE_STATUS_COLORS.Submitted;
             return (
-              <View key={d.id} style={[styles.disputeCard, { backgroundColor: colors.surface }, SHADOWS.card]}>
-                <View style={styles.disputeHeader}>
-                  <Text style={[styles.disputeId, { color: colors.textMuted, fontFamily: 'Inter-Medium' }]}>{d.id}</Text>
-                  <View style={[styles.disputeStatusBadge, { backgroundColor: dc.bg }]}>
-                    <Text style={[styles.disputeStatusText, { color: dc.text, fontFamily: 'Inter-SemiBold' }]}>{d.status}</Text>
+              <Animated.View key={d.id} entering={FadeInRight.delay(index * 80).duration(400)}>
+                <View style={[styles.disputeCard, { backgroundColor: colors.surface }, SHADOWS.card]}>
+                  <View style={styles.disputeHeader}>
+                    <Text style={[styles.disputeId, { color: colors.textMuted, fontFamily: 'Inter-Medium' }]}>{d.id}</Text>
+                    <View style={[styles.disputeStatusBadge, { backgroundColor: dc.bg }]}>
+                      <Text style={[styles.disputeStatusText, { color: dc.text, fontFamily: 'Inter-SemiBold' }]}>{d.status}</Text>
+                    </View>
                   </View>
+                  <Text style={[styles.disputeTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{d.title}</Text>
+                  <Text style={[styles.disputeCategory, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>{d.category}</Text>
+                  <Text style={[styles.disputeDesc, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]} numberOfLines={2}>{d.description}</Text>
+                  <Text style={[styles.disputeDate, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>Submitted: {d.submittedDate}</Text>
                 </View>
-                <Text style={[styles.disputeTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{d.title}</Text>
-                <Text style={[styles.disputeCategory, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>{d.category}</Text>
-                <Text style={[styles.disputeDesc, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]} numberOfLines={2}>{d.description}</Text>
-                <Text style={[styles.disputeDate, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>Submitted: {d.submittedDate}</Text>
-              </View>
+              </Animated.View>
             );
           })}
           <View style={{ height: 32 }} />
@@ -98,7 +120,8 @@ export default function DisputeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   tabBar: { flexDirection: 'row', paddingHorizontal: 20, paddingVertical: 12, gap: 10 },
-  tab: { flex: 1, paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
+  tabWrap: { flex: 1 },
+  tab: { paddingVertical: 10, borderRadius: 12, alignItems: 'center' },
   tabText: { fontSize: 13 },
   scrollContent: { padding: 20 },
   linkedCard: { borderRadius: 14, padding: 16, marginBottom: 20 },

@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
 import { CheckCircle, AlertTriangle, Info, AlertCircle } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_NOTIFICATIONS } from '@/data/mockData';
@@ -22,36 +23,37 @@ export default function NotificationsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Notifications" />
       {unreadCount > 0 && (
-        <View style={[styles.unreadBar, { backgroundColor: colors.primaryLight }]}>
+        <Animated.View entering={FadeInDown.duration(400)} style={[styles.unreadBar, { backgroundColor: colors.primaryLight }]}>
           <Text style={[styles.unreadText, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}</Text>
-        </View>
+        </Animated.View>
       )}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {MOCK_NOTIFICATIONS.map(notif => {
+        {MOCK_NOTIFICATIONS.map((notif, index) => {
           const config = TYPE_CONFIG[notif.type];
           const Icon = config.icon;
           return (
-            <Pressable
-              key={notif.id}
-              style={[
-                styles.notifCard,
-                { backgroundColor: colors.surface, borderLeftWidth: !notif.isRead ? 3 : 0, borderLeftColor: !notif.isRead ? colors.primary : 'transparent' },
-                SHADOWS.card,
-              ]}
-              onPress={() => notif.linkedRequestId && router.push({ pathname: '/request-detail', params: { id: notif.linkedRequestId } })}
-            >
-              <View style={[styles.notifIcon, { backgroundColor: config.bg }]}>
-                <Icon size={18} color={config.color} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={styles.notifTitleRow}>
-                  <Text style={[styles.notifTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]} numberOfLines={1}>{notif.title}</Text>
-                  {!notif.isRead && <View style={[styles.notifDot, { backgroundColor: colors.primary }]} />}
+            <Animated.View key={notif.id} entering={FadeInRight.delay(index * 70).duration(400)}>
+              <Pressable
+                style={[
+                  styles.notifCard,
+                  { backgroundColor: colors.surface, borderLeftWidth: !notif.isRead ? 3 : 0, borderLeftColor: !notif.isRead ? colors.primary : 'transparent' },
+                  SHADOWS.card,
+                ]}
+                onPress={() => notif.linkedRequestId && router.push({ pathname: '/request-detail', params: { id: notif.linkedRequestId } })}
+              >
+                <View style={[styles.notifIcon, { backgroundColor: config.bg }]}>
+                  <Icon size={18} color={config.color} />
                 </View>
-                <Text style={[styles.notifMessage, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]} numberOfLines={2}>{notif.message}</Text>
-                <Text style={[styles.notifTime, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{notif.timestamp}</Text>
-              </View>
-            </Pressable>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.notifTitleRow}>
+                    <Text style={[styles.notifTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]} numberOfLines={1}>{notif.title}</Text>
+                    {!notif.isRead && <View style={[styles.notifDot, { backgroundColor: colors.primary }]} />}
+                  </View>
+                  <Text style={[styles.notifMessage, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]} numberOfLines={2}>{notif.message}</Text>
+                  <Text style={[styles.notifTime, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{notif.timestamp}</Text>
+                </View>
+              </Pressable>
+            </Animated.View>
           );
         })}
         <View style={{ height: 24 }} />

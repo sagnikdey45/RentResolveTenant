@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 import { Megaphone } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_ANNOUNCEMENTS } from '@/data/mockData';
@@ -18,25 +19,27 @@ export default function AnnouncementsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Announcements" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {MOCK_ANNOUNCEMENTS.map(ann => {
+        {MOCK_ANNOUNCEMENTS.map((ann, index) => {
           const ac = PRIORITY_STYLES[ann.priority] || PRIORITY_STYLES.Low;
           return (
-            <View key={ann.id} style={[styles.card, { backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: ac.color }, SHADOWS.card]}>
-              <View style={styles.cardHeader}>
-                <View style={[styles.icon, { backgroundColor: ac.color + '14' }]}>
-                  <Megaphone size={14} color={ac.color} />
+            <Animated.View key={ann.id} entering={FadeInRight.delay(index * 80).duration(400)}>
+              <View style={[styles.card, { backgroundColor: colors.surface, borderLeftWidth: 3, borderLeftColor: ac.color }, SHADOWS.card]}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.icon, { backgroundColor: ac.color + '14' }]}>
+                    <Megaphone size={14} color={ac.color} />
+                  </View>
+                  <Text style={[styles.title, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]} numberOfLines={1}>{ann.title}</Text>
+                  <View style={[styles.badge, { backgroundColor: ac.color + '14' }]}>
+                    <Text style={[styles.badgeText, { color: ac.color, fontFamily: 'Inter-SemiBold' }]}>{ann.priority}</Text>
+                  </View>
                 </View>
-                <Text style={[styles.title, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]} numberOfLines={1}>{ann.title}</Text>
-                <View style={[styles.badge, { backgroundColor: ac.color + '14' }]}>
-                  <Text style={[styles.badgeText, { color: ac.color, fontFamily: 'Inter-SemiBold' }]}>{ann.priority}</Text>
+                <Text style={[styles.message, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{ann.message}</Text>
+                <View style={styles.metaRow}>
+                  <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{ann.date}</Text>
+                  <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>by {ann.postedBy}</Text>
                 </View>
               </View>
-              <Text style={[styles.message, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{ann.message}</Text>
-              <View style={styles.metaRow}>
-                <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{ann.date}</Text>
-                <Text style={[styles.meta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>by {ann.postedBy}</Text>
-              </View>
-            </View>
+            </Animated.View>
           );
         })}
         <View style={{ height: 24 }} />

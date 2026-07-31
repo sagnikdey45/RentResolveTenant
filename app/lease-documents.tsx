@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, Pressable, Alert, Platform, StyleSheet } from 'react-native';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 import { FileText, Download, Eye } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_DOCUMENTS } from '@/data/mockData';
@@ -27,30 +28,32 @@ export default function LeaseDocumentsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Lease Documents" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {MOCK_DOCUMENTS.map(doc => {
+        {MOCK_DOCUMENTS.map((doc, index) => {
           const iconColor = TYPE_COLORS[doc.type] || colors.textMuted;
           const status = STATUS_MAP[doc.status] || STATUS_MAP.Available;
           return (
-            <View key={doc.id} style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
-              <View style={[styles.docIcon, { backgroundColor: iconColor + '14' }]}>
-                <FileText size={22} color={iconColor} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.docName, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{doc.name}</Text>
-                <Text style={[styles.docMeta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{doc.type} - {doc.uploadedDate}</Text>
-                <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
-                  <Text style={[styles.statusText, { color: status.text, fontFamily: 'Inter-SemiBold' }]}>{doc.status}</Text>
+            <Animated.View key={doc.id} entering={FadeInRight.delay(index * 70).duration(400)}>
+              <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
+                <View style={[styles.docIcon, { backgroundColor: iconColor + '14' }]}>
+                  <FileText size={22} color={iconColor} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.docName, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{doc.name}</Text>
+                  <Text style={[styles.docMeta, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>{doc.type} - {doc.uploadedDate}</Text>
+                  <View style={[styles.statusBadge, { backgroundColor: status.bg }]}>
+                    <Text style={[styles.statusText, { color: status.text, fontFamily: 'Inter-SemiBold' }]}>{doc.status}</Text>
+                  </View>
+                </View>
+                <View style={styles.actions}>
+                  <Pressable style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary }]} onPress={() => handleView(doc.name)}>
+                    <Eye size={16} color={colors.primary} />
+                  </Pressable>
+                  <Pressable style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary }]} onPress={() => handleView(doc.name)}>
+                    <Download size={16} color={colors.textMuted} />
+                  </Pressable>
                 </View>
               </View>
-              <View style={styles.actions}>
-                <Pressable style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary }]} onPress={() => handleView(doc.name)}>
-                  <Eye size={16} color={colors.primary} />
-                </Pressable>
-                <Pressable style={[styles.actionBtn, { backgroundColor: colors.surfaceSecondary }]} onPress={() => handleView(doc.name)}>
-                  <Download size={16} color={colors.textMuted} />
-                </Pressable>
-              </View>
-            </View>
+            </Animated.View>
           );
         })}
         <View style={{ height: 24 }} />

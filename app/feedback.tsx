@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Star } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { InputField } from '@/components/InputField';
@@ -49,41 +50,45 @@ export default function FeedbackScreen() {
       <ScreenHeader title="Feedback" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {request && (
-          <View style={[styles.linkedCard, { backgroundColor: colors.primaryLight }]}>
+          <Animated.View entering={FadeInDown.duration(400)} style={[styles.linkedCard, { backgroundColor: colors.primaryLight }]}>
             <Text style={[styles.linkedId, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{request.id}</Text>
             <Text style={[styles.linkedTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{request.title}</Text>
-          </View>
+          </Animated.View>
         )}
 
-        <StarRating label="Overall Rating" value={overall} onChange={setOverall} colors={colors} />
-        <StarRating label="Repair Quality" value={quality} onChange={setQuality} colors={colors} />
-        <StarRating label="Response Time" value={responseTime} onChange={setResponseTime} colors={colors} />
-        <StarRating label="Technician Behavior" value={techBehavior} onChange={setTechBehavior} colors={colors} />
+        <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+          <StarRating label="Overall Rating" value={overall} onChange={setOverall} colors={colors} />
+          <StarRating label="Repair Quality" value={quality} onChange={setQuality} colors={colors} />
+          <StarRating label="Response Time" value={responseTime} onChange={setResponseTime} colors={colors} />
+          <StarRating label="Technician Behavior" value={techBehavior} onChange={setTechBehavior} colors={colors} />
+        </Animated.View>
 
-        <Text style={[styles.resolvedLabel, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>Was the issue fully resolved?</Text>
-        <View style={styles.resolvedRow}>
-          <Pressable
-            style={[styles.resolvedBtn, {
-              backgroundColor: resolved === true ? colors.successLight : colors.surface,
-              borderColor: resolved === true ? colors.success : colors.border,
-            }, SHADOWS.soft]}
-            onPress={() => setResolved(true)}
-          >
-            <Text style={[styles.resolvedBtnText, { color: resolved === true ? colors.success : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.resolvedBtn, {
-              backgroundColor: resolved === false ? colors.dangerLight : colors.surface,
-              borderColor: resolved === false ? colors.danger : colors.border,
-            }, SHADOWS.soft]}
-            onPress={() => setResolved(false)}
-          >
-            <Text style={[styles.resolvedBtnText, { color: resolved === false ? colors.danger : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>No</Text>
-          </Pressable>
-        </View>
+        <Animated.View entering={FadeInUp.delay(300).duration(400)}>
+          <Text style={[styles.resolvedLabel, { color: colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>Was the issue fully resolved?</Text>
+          <View style={styles.resolvedRow}>
+            <Pressable
+              style={[styles.resolvedBtn, {
+                backgroundColor: resolved === true ? colors.successLight : colors.surface,
+                borderColor: resolved === true ? colors.success : colors.border,
+              }, SHADOWS.soft]}
+              onPress={() => setResolved(true)}
+            >
+              <Text style={[styles.resolvedBtnText, { color: resolved === true ? colors.success : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>Yes</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.resolvedBtn, {
+                backgroundColor: resolved === false ? colors.dangerLight : colors.surface,
+                borderColor: resolved === false ? colors.danger : colors.border,
+              }, SHADOWS.soft]}
+              onPress={() => setResolved(false)}
+            >
+              <Text style={[styles.resolvedBtnText, { color: resolved === false ? colors.danger : colors.textSecondary, fontFamily: 'Inter-SemiBold' }]}>No</Text>
+            </Pressable>
+          </View>
 
-        <InputField label="Written Feedback" placeholder="Share your experience..." value={comment} onChangeText={setComment} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
-        <PrimaryButton title="Submit Feedback" onPress={handleSubmit} loading={loading} style={{ marginTop: 12 }} />
+          <InputField label="Written Feedback" placeholder="Share your experience..." value={comment} onChangeText={setComment} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
+          <PrimaryButton title="Submit Feedback" onPress={handleSubmit} loading={loading} style={{ marginTop: 12 }} />
+        </Animated.View>
         <View style={{ height: 32 }} />
       </ScrollView>
     </View>

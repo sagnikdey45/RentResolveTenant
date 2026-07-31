@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ArrowLeft, Send, LinkIcon } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_CONVERSATIONS, type Message } from '@/data/mockData';
@@ -73,23 +74,37 @@ export default function ConversationScreen() {
           const isMe = msg.senderId === 'tenant_001';
           return (
             <View key={msg.id} style={[styles.messageRow, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
-              <View style={[
-                styles.bubble,
-                {
-                  backgroundColor: isMe ? colors.primary : colors.surface,
-                  borderWidth: isMe ? 0 : 1,
-                  borderColor: isMe ? 'transparent' : colors.border,
-                  borderBottomLeftRadius: isMe ? 18 : 4,
-                  borderBottomRightRadius: isMe ? 4 : 18,
-                },
-                !isMe && SHADOWS.soft,
-              ]}>
-                {!isMe && <Text style={[styles.senderName, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{msg.senderName}</Text>}
-                <Text style={[styles.messageText, { color: isMe ? '#FFFFFF' : colors.textPrimary, fontFamily: 'Inter-Regular' }]}>{msg.text}</Text>
-                <Text style={[styles.messageTime, { color: isMe ? 'rgba(255,255,255,0.6)' : colors.textMuted, fontFamily: 'Inter-Regular' }]}>
-                  {msg.timestamp.split(' ')[1]}
-                </Text>
-              </View>
+              {isMe ? (
+                <LinearGradient
+                  colors={['#1E6B5A', '#0D9488']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.bubble, { borderBottomLeftRadius: 18, borderBottomRightRadius: 4 }]}
+                >
+                  <Text style={[styles.messageText, { color: '#FFFFFF', fontFamily: 'Inter-Regular' }]}>{msg.text}</Text>
+                  <Text style={[styles.messageTime, { color: 'rgba(255,255,255,0.6)', fontFamily: 'Inter-Regular' }]}>
+                    {msg.timestamp.split(' ')[1]}
+                  </Text>
+                </LinearGradient>
+              ) : (
+                <View style={[
+                  styles.bubble,
+                  {
+                    backgroundColor: colors.surface,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderBottomLeftRadius: 4,
+                    borderBottomRightRadius: 18,
+                  },
+                  SHADOWS.soft,
+                ]}>
+                  <Text style={[styles.senderName, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{msg.senderName}</Text>
+                  <Text style={[styles.messageText, { color: colors.textPrimary, fontFamily: 'Inter-Regular' }]}>{msg.text}</Text>
+                  <Text style={[styles.messageTime, { color: colors.textMuted, fontFamily: 'Inter-Regular' }]}>
+                    {msg.timestamp.split(' ')[1]}
+                  </Text>
+                </View>
+              )}
             </View>
           );
         })}
@@ -105,11 +120,13 @@ export default function ConversationScreen() {
           onSubmitEditing={handleSend}
         />
         <Pressable
-          style={[styles.sendButton, { backgroundColor: colors.primary, opacity: text.trim() ? 1 : 0.4 }]}
+          style={[styles.sendButton, { opacity: text.trim() ? 1 : 0.4 }]}
           onPress={handleSend}
           disabled={!text.trim()}
         >
-          <Send size={18} color="#FFFFFF" />
+          <LinearGradient colors={['#1E6B5A', '#0D9488']} style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}>
+            <Send size={18} color="#FFFFFF" />
+          </LinearGradient>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -132,5 +149,5 @@ const styles = StyleSheet.create({
   messageTime: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
   inputBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 12, borderTopWidth: 1 },
   chatInput: { flex: 1, borderRadius: 24, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, borderWidth: 1 },
-  sendButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  sendButton: { width: 48, height: 48, borderRadius: 24, overflow: 'hidden' },
 });

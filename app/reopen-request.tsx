@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, Alert, Platform, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Camera } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { InputField } from '@/components/InputField';
@@ -33,19 +34,23 @@ export default function ReopenRequestScreen() {
       <ScreenHeader title="Reopen Request" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {request && (
-          <View style={[styles.linkedCard, { backgroundColor: colors.primaryLight }]}>
+          <Animated.View entering={FadeInDown.duration(400)} style={[styles.linkedCard, { backgroundColor: colors.primaryLight }]}>
             <Text style={[styles.linkedId, { color: colors.primary, fontFamily: 'Inter-SemiBold' }]}>{request.id}</Text>
             <Text style={[styles.linkedTitle, { color: colors.textPrimary, fontFamily: 'Inter-SemiBold' }]}>{request.title}</Text>
-          </View>
+          </Animated.View>
         )}
-        <PickerSelect label="Reason for Reopening" value={reason} options={REOPEN_REASONS} onSelect={setReason} placeholder="Select reason" />
-        <InputField label="Additional Explanation" placeholder="Describe why you are reopening..." value={explanation} onChangeText={setExplanation} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
-        <PickerSelect label="Severity of Remaining Issue" value={severity} options={SEVERITY} onSelect={setSeverity} placeholder="Select severity" />
-        <Pressable style={[styles.evidenceBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
-          <Camera size={20} color={colors.primary} />
-          <Text style={[styles.evidenceBtnText, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>Add New Evidence</Text>
-        </Pressable>
-        <PrimaryButton title="Submit Reopen Request" onPress={handleSubmit} loading={loading} style={{ marginTop: 20 }} />
+        <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+          <PickerSelect label="Reason for Reopening" value={reason} options={REOPEN_REASONS} onSelect={setReason} placeholder="Select reason" />
+          <InputField label="Additional Explanation" placeholder="Describe why you are reopening..." value={explanation} onChangeText={setExplanation} multiline numberOfLines={4} style={{ minHeight: 100, textAlignVertical: 'top' }} />
+          <PickerSelect label="Severity of Remaining Issue" value={severity} options={SEVERITY} onSelect={setSeverity} placeholder="Select severity" />
+        </Animated.View>
+        <Animated.View entering={FadeInUp.delay(250).duration(400)}>
+          <Pressable style={[styles.evidenceBtn, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => showAlert('Evidence upload will be available with backend integration.')}>
+            <Camera size={20} color={colors.primary} />
+            <Text style={[styles.evidenceBtnText, { color: colors.primary, fontFamily: 'Inter-Medium' }]}>Add New Evidence</Text>
+          </Pressable>
+          <PrimaryButton title="Submit Reopen Request" onPress={handleSubmit} loading={loading} style={{ marginTop: 20 }} />
+        </Animated.View>
         <View style={{ height: 32 }} />
       </ScrollView>
     </View>

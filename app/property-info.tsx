@@ -1,4 +1,6 @@
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Building2, MapPin, User, Phone, Mail, Calendar, Wallet, Shield, Zap, Droplets, Flame, Wifi, Wrench } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
 import { MOCK_PROPERTY } from '@/data/mockData';
@@ -13,7 +15,11 @@ export default function PropertyInfoScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader title="Property Info" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={[styles.heroCard, { backgroundColor: colors.surface }, SHADOWS.elevated]}>
+        <Animated.View entering={FadeInDown.duration(500)} style={[styles.heroCard, { backgroundColor: colors.surface }, SHADOWS.elevated]}>
+          <LinearGradient
+            colors={['#1E6B5A12', '#0D948808'] as [string, string]}
+            style={styles.heroGlow}
+          />
           <View style={[styles.heroIcon, { backgroundColor: colors.primaryLight }]}>
             <Building2 size={28} color={colors.primary} />
           </View>
@@ -23,46 +29,52 @@ export default function PropertyInfoScreen() {
             <MapPin size={14} color={colors.textMuted} />
             <Text style={[styles.addressText, { color: colors.textSecondary, fontFamily: 'Inter-Regular' }]}>{p.fullAddress}</Text>
           </View>
-        </View>
+        </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Contacts</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
-          <InfoRow icon={<User size={16} color={colors.primary} />} label="Landlord" value={p.landlordName} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Phone size={16} color={colors.primary} />} label="Landlord Phone" value={p.landlordPhone} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<User size={16} color={colors.success} />} label="Property Manager" value={p.propertyManagerName} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Phone size={16} color={colors.success} />} label="Manager Phone" value={p.propertyManagerPhone} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Mail size={16} color={colors.success} />} label="Manager Email" value={p.propertyManagerEmail} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Phone size={16} color={colors.danger} />} label="Emergency" value={p.emergencyContact} colors={colors} />
-        </View>
+        <Animated.View entering={FadeInDown.delay(150).duration(500)}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Contacts</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
+            <InfoRow icon={<User size={16} color={colors.primary} />} label="Landlord" value={p.landlordName} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Phone size={16} color={colors.primary} />} label="Landlord Phone" value={p.landlordPhone} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<User size={16} color={colors.success} />} label="Property Manager" value={p.propertyManagerName} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Phone size={16} color={colors.success} />} label="Manager Phone" value={p.propertyManagerPhone} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Mail size={16} color={colors.success} />} label="Manager Email" value={p.propertyManagerEmail} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Phone size={16} color={colors.danger} />} label="Emergency" value={p.emergencyContact} colors={colors} />
+          </View>
+        </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Lease Details</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
-          <InfoRow icon={<Calendar size={16} color={colors.textMuted} />} label="Lease Start" value={p.leaseStart} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Calendar size={16} color={colors.textMuted} />} label="Lease End" value={p.leaseEnd} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Wallet size={16} color={colors.textMuted} />} label="Monthly Rent" value={`Rs. ${p.monthlyRent.toLocaleString()}`} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <InfoRow icon={<Shield size={16} color={colors.textMuted} />} label="Security Deposit" value={`Rs. ${p.securityDeposit.toLocaleString()}`} colors={colors} />
-        </View>
+        <Animated.View entering={FadeInDown.delay(300).duration(500)}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Lease Details</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
+            <InfoRow icon={<Calendar size={16} color={colors.textMuted} />} label="Lease Start" value={p.leaseStart} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Calendar size={16} color={colors.textMuted} />} label="Lease End" value={p.leaseEnd} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Wallet size={16} color={colors.textMuted} />} label="Monthly Rent" value={`Rs. ${p.monthlyRent.toLocaleString()}`} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <InfoRow icon={<Shield size={16} color={colors.textMuted} />} label="Security Deposit" value={`Rs. ${p.securityDeposit.toLocaleString()}`} colors={colors} />
+          </View>
+        </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Utility Responsibility</Text>
-        <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
-          <UtilityRow icon={<Zap size={16} color="#F59E0B" />} label="Electricity" value={p.utilityResponsibility.electricity} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <UtilityRow icon={<Droplets size={16} color="#3B82F6" />} label="Water" value={p.utilityResponsibility.water} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <UtilityRow icon={<Flame size={16} color="#EF4444" />} label="Gas" value={p.utilityResponsibility.gas} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <UtilityRow icon={<Wifi size={16} color="#0284C7" />} label="Internet" value={p.utilityResponsibility.internet} colors={colors} />
-          <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
-          <UtilityRow icon={<Wrench size={16} color="#6B7280" />} label="Maintenance" value={p.utilityResponsibility.maintenance} colors={colors} />
-        </View>
+        <Animated.View entering={FadeInUp.delay(450).duration(500)}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary, fontFamily: 'Inter-Bold' }]}>Utility Responsibility</Text>
+          <View style={[styles.card, { backgroundColor: colors.surface }, SHADOWS.card]}>
+            <UtilityRow icon={<Zap size={16} color="#F59E0B" />} label="Electricity" value={p.utilityResponsibility.electricity} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <UtilityRow icon={<Droplets size={16} color="#3B82F6" />} label="Water" value={p.utilityResponsibility.water} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <UtilityRow icon={<Flame size={16} color="#EF4444" />} label="Gas" value={p.utilityResponsibility.gas} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <UtilityRow icon={<Wifi size={16} color="#0284C7" />} label="Internet" value={p.utilityResponsibility.internet} colors={colors} />
+            <View style={[styles.divider, { backgroundColor: colors.borderLight }]} />
+            <UtilityRow icon={<Wrench size={16} color="#6B7280" />} label="Maintenance" value={p.utilityResponsibility.maintenance} colors={colors} />
+          </View>
+        </Animated.View>
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>
@@ -97,7 +109,8 @@ function UtilityRow({ icon, label, value, colors }: { icon: React.ReactNode; lab
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 20 },
-  heroCard: { borderRadius: 20, padding: 24, alignItems: 'center', marginBottom: 4 },
+  heroCard: { borderRadius: 20, padding: 24, alignItems: 'center', marginBottom: 4, overflow: 'hidden' },
+  heroGlow: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 20 },
   heroIcon: { width: 56, height: 56, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   heroName: { fontSize: 20 },
   heroUnit: { fontSize: 15, marginTop: 4 },
